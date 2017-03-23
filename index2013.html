@@ -15,864 +15,976 @@ Delian Delchev (VBScript to Javascript conversion)
 This software is distributed free of charge
 -->
 <!DOCTYPE html>
-<html><head>
-        <title>Bulgarian Parliamentary Elections 2013</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link href="https://www.bivol.bg/elections-code_files/bootstrap.css" rel="stylesheet">
-        <style media="screen" type="text/css">
-            select, textarea,
-            input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"],
-            input[type="date"], input[type="month"], input[type="time"], input[type="week"],
-            input[type="number"], input[type="email"], input[type="url"], input[type="search"],
-            input[type="tel"], input[type="color"],
-            .uneditable-input {
-                display: inline-block;
-                height: 20px;
-                padding: 1px 1px;
-                margin-bottom: 2px;
-                font-size: 10pt;
-                line-height: 10px;
-                color: #555555;
-                vertical-align: middle;
-                -webkit-border-radius: 2px;
-                -moz-border-radius: 2px;
-                border-radius: 2px;
-            }
-
-            input {
-                width: 50px;
-            }
-
-            .table td {
-                padding: 2px;
-                line-height: 10px;
-                text-align: left;
-                vertical-align: top;
-                border-top: 1px solid #dddddd;
-            }
-
-            .bolded {
-                font-weight:bold;
-            }
-
-            .colorIndex3 {
-                color: red
-            }
-
-            .colorIndex5 {
-                color: blue
-            }
-
-            .firstRow {
-                background: #D0D0D0;
-                font-weight: bold;
-                border: 1px solid black;
-            }
-
-            .firstCol {
-                background: #D0D0D0;
-                border: 1px solid black;
-            }
-
-            #finalTable .secondRow {
-                background: #F0F0F0;
-                font-weight: bold;
-                border: 1px solid black;
-            }
-
-            #finalTable .lastCol {
-                border: 1px solid black;
-            }
-
-            #table3p td { text-align: center; vertical-align:middle; }
-
-            #table3i td { text-align: center; vertical-align:middle; }
-
-            #table3 td { text-align: center; vertical-align:middle; }
-
-            #fracTable td { text-align: center; vertical-align:middle; }
-
-            #finalTable td { text-align: center; vertical-align:middle; }
-
-            #fracTable .lastCol {
-                border: 1px solid black;
-            }
-
-            #fracTable .secondRow {
-                border: 1px solid black;
-                font-weight: bold;
-                background: #F0F0F0;
-            }
-
-            #fracTable .underLastCol {
-                border: 1px solid black;
-            }
-
-            #table3p .lastCol {
-                border: 1px solid black;
-            }
-
-            #table3p .underLastCol {
-                border: 1px solid black;
-            }
-
-            #table3i .lastCol {
-                border: 1px solid black;
-            }
-
-            #table3i .underLastCol {
-                border: 1px solid black;
-            }
-
-            #table3 .secondRow {
-                border: 1px solid black;
-                font-weight: bold;
-                background: #F0F0F0;
-            }
-
-            #table3 .lastCol {
-                border: 1px solid black;
-            }
-
-            #table3 .underLastCol {
-                border: 1px solid black;
-            }
-        </style>
-        <script>
-
-            // Fix some compatibility issues
-            if (typeof console === "undefined") console={};
-            if (typeof console.log === "undefined") console.log = function (n) {};
-            if (typeof Array.prototype.push === "undefined") {
-                Array.prototype.push = function (n) {
-                    var i;
-                    if (n instanceof Array) {
-                        for (i=0;i<n.length;i++) this[this.length]=n[i];
-                        return this;
-                    }
-                    this[this.length] = n;
-                    return this;
-                };
-            }
-            if (typeof Array.prototype.forEach === "undefined") {
-                Array.prototype.forEach = function(n) {
-                    var i;
-                    for (i=0;i<this.length;i++) n(this[i]);
-                };
-            }
-            if (typeof Array.prototype.map === "undefined") {
-                Array.prototype.map = function(n) {
-                    var i;
-                    var a = [];
-                    for (i=0;i<this.length;i++) a[a.length]=n(this[i]);
-                    return a;
-                };
-            }
-            if (typeof Object.prototype.keys === "undefined") {
-                Object.prototype.keys = function(n) {
-                    var i;
-                    var a = [];
-                    for (i in n) { a[a.length]=i; }
-                    return a;
-                };
-            }
-            if (typeof document.getElementsByClassName === "undefined") {
-                document.getElementsByClassName = function(n) {
-                    var a = [];
-                    var cl = n.split(/ +/);
-                    var e = document.getElementsByTagName('*');
-                    var i; var j;
-                    for (i=0;i<e.length;i++) {
-                        for (j=0;j<cl.length;j++) {
-                            if (RegExp(' '+cl[j]+' ').test(' '+e[i].className+' ')) { a[a.length]=e[i]; break; }
-                        }
-                    }
-                    return a;
-                };
-            }
-
-            // ----
-
-            function BgElections2013codeV4() {
-                // Translation from Visual Basic to JavaScript
-                var InputData;
-                var x;
-                var y;
-                var MIR;
-                var Parties;
-                var Total;
-                var lowPerc = parseFloat(document.getElementById("lowPerc").value);
-
-                MIR = parseInt(document.getElementById("dim_mir").value);
-                Parties = parseInt(document.getElementById("dim_party").value);
-
-                var p = readSpecs();
-                console.log(p);
-                filterLowPerc(p,lowPerc); // Remove all the parties with less than 4%
-                console.log(p); // Lets dump what we have here
-
-                // Now we have in P only the values of the parties to compute
-                var i; var j;
-                var mandates = [];
-                var totMandates = []; // we shall see when we use the totMandates at all, as it looks like the globalMandates is more important
-                // Distrubute the mandates
-                for (i=0;i<Parties;i++) {
-                    mandates[i]=[];
-                    for (j=0;j<MIR;j++) {
-                        mandates[i][j] = p.mir[j].mandates * p.party[i].partyVotes[j]/p.mir[j].reTotalSum; // Error, not global totalsum
-                    }
-                    totMandates[i] = sumArray(mandates[i]);
-                }
-
-                // Distribution of the seats between the parties on a national level, 1st step
-                var globalMandates = [];
-                for (i=0;i<Parties;i++) globalMandates[i] = p.totalMandates * p.party[i].partySum/p.reTotalSum;
-
-                // integer parts and fractions are separated in two new tables
-                var intMandates = [];
-                var intTotMandates = [];
-                var fracMandates = [];
-                var fracTotMandates = [];
-                for (i=0;i<Parties;i++) {
-                    intMandates[i] = []; fracMandates[i] = [];
-                    for (j=0;j<MIR;j++) {
-                        intMandates[i][j] = parseInt(mandates[i][j]);
-                        fracMandates[i][j] = mandates[i][j]-intMandates[i][j];
-                    }
-                    intTotMandates[i] = parseInt(globalMandates[i]); // globalMandates instead of totMandates
-                    fracTotMandates[i] = globalMandates[i] - intTotMandates[i]; // globalMandates instead of totMandates
-                }
-
-                // Lets compute the non distributed seats
-                // Here we compute the non-distributed seats by constituency (MIR)
-                var undistSeats = [];
-                for (j=0;j<MIR;j++) {
-                    undistSeats[j] = p.mir[j].mandates - sumCol(intMandates,j);
-                }
-                var totUndMandates = p.totalMandates - sumArray(intTotMandates); //totalMandates is missing
-
-                // Make some cells bold (used in the calculation later, those are the first X (undistributed) mandates in the column)
-                var bolded = [];
-                for (i=0;i<Parties;i++) {
-                    bolded[i]=[];
-                    for (j=0;j<MIR;j++) {
-                        bolded[i][j]=0;
-                        var r = rankCol(fracMandates[i][j],fracMandates,j);
-                        if (r<=undistSeats[j]) bolded[i][j]=1;
-                    }
-                }
-
-                var totBolded = [];
-                for (i=0; i<Parties;i++) {
-                    totBolded[i] = 0; if (rank(fracTotMandates[i],fracTotMandates) <= totUndMandates) totBolded[i] = 1;
-                }
-
-                var winMandates = [];
-                // Calculate number of seats per party STEP 1
-                for (i=0;i<Parties;i++) { winMandates[i] = parseInt(globalMandates[i]) + totBolded[i]; } //globalMandates instead of totMandates
-
-                // Lets calculate the difference between the direct mandates and the mandate redistribution
-                // It is possible to have situation where we have removal of a mandate instead of adding one, which is wrong
-                var parMandates = [];
-                for (i=0;i<Parties;i++) {
-                    parMandates[i] = winMandates[i] - sumArray(intMandates[i]);
-                    if (parMandates[i]<0) {
-                        alert("Sorry, we have a problem in STEP2\nwe can not distribute a negative number of seats\nPlease send a message to CIK\ncik@cik.bg");
-                    }
-                }
-
-                //
-                var diffMandates = []; // Here we compute the excedence
-                for (i=0;i<Parties;i++) {
-                    diffMandates[i] = sumArray(bolded[i]) - parMandates[i];
-                }
-
-                // the table with the whole and the distributed mandates together
-                var tab4Mandates = [];
-                for (i=0;i<Parties;i++) {
-                    tab4Mandates[i]=[];
-                    for (j=0;j<MIR;j++) {
-                        tab4Mandates[i][j]=bolded[i][j]+intMandates[i][j];
-                    }
-                }
-
-                var tab4giveMandates = [];
-                var tab4wonMandates = [];
-                for (i=0;i<Parties;i++) {
-                    tab4giveMandates[i] = sumArray(tab4Mandates[i]);
-                    tab4wonMandates[i] = winMandates[i];
-                }
-
-                // Table 3
-                var tab3sumMandates = [];
-                for (i=0;i<Parties;i++) {
-                    tab3sumMandates[i] = sumArray(intMandates[i]);
-                }
-
-                var tab3leftMandates = [];
-                for (i=0;i<Parties;i++) {
-                    tab3leftMandates[i] = winMandates[i] - tab3sumMandates[i];
-                }
-
-                // ------ Mandate redistribution
-                // From now on we work only on table 5 (fracMandates)
-
-                // In the original code there is a duplication, so I am skipping it, diffMandates[i] contains the excedence already
-
-                // The main calculation for the mandate redistribution
-                var Timer;
-                var finalTable = [];
-
-                var boldCellPlus = [];
-//                var boldCellMinus = [];
-                var Iplus;
-                var Jplus;
-                var Iminus;
-//                var Jminus;
-//                var K;
-                var PlusCounter;
-                var cellMinus = [];
-//                var c = [];
-                var Min;
-
-                var colorIndex=[]; // We are moving the colorIndex outside
-                // --- Checked up to here
-                for (Timer=0;Timer<50;Timer++) {
-                    PlusCounter = 0;
-                    boldCellPlus=[];
-                    for (i=0;i<Parties;i++) {
-                        if (diffMandates[i]>0) PlusCounter++;
-                    }
-
-                    if (PlusCounter===0) {
-                        alert("След "+Timer+" повторения имаме резултат!");
-
-                        for (i=0;i<Parties;i++) {
-                            finalTable[i]=[];
-                            for (j=0;j<MIR;j++) {
-                                finalTable[i][j]=bolded[i][j]+intMandates[i][j];
-                            }
-                        }
-                        // Decoration is not copied
-                        // .....
-                        break;
-                    }
-
-                    // Article 24
-                    var bBold=0;
-                    for (i=0;i<Parties;i++) {
-                        if (typeof colorIndex[i]==='undefined') colorIndex[i]=[];
-                        boldCellPlus[i]=[];
-                        for (j=0;j<MIR;j++) {
-                            boldCellPlus[i][j]=0;
-                            if (bolded[i][j] && diffMandates[i] > 0 && colorIndex[i][j] !== 3) {
-                                boldCellPlus[i][j]=1; // Union
-                                bBold=1;
-                            }
-                        }
-                    }
-                    if (!bBold) {
-                        alert("Внимание, настъпи проблем след "+Timer+" повторения в стъпка 3! Не може да се намери решение: Моля информирайте ЦИК на cik@cik.bg");
-                        break;
-                    }
-                    var res = crossTableMinMax(fracMandates,boldCellPlus,0);
-                    Min = res.val;
-                    Iplus = res.row;
-                    Jplus = res.col;
-
-                    cellMinus=[];
-                    var bCell=0;
-                    for (k=0;k<Parties;k++) {
-                        cellMinus[k]=[];
-                        if (bolded[k][Jplus]===0 && colorIndex[k][Jplus] !== 3) {
-                            cellMinus[k][Jplus]=1;
-                            bCell=1;
-                        }
-                    }
-                    if (bCell) {
-                        res = crossTableMinMax(fracMandates,cellMinus,1);
-                        Iminus = res.row;
-                        // var counter = Jplus; //???
-                        bolded[Iplus][Jplus] = 0;
-                        bolded[Iminus][Jplus] = 1; // fixed typo
-                        colorIndex[Iplus][Jplus] = 3;
-                        colorIndex[Iminus][Jplus] = 5;
-                        for (i=0;i<Parties;i++) {
-                            diffMandates[i] = sumArray(bolded[i]) - parMandates[i];
-                        }
-                    } else {
-                        for (i=0;i<Parties;i++) colorIndex[i][Jplus]=3; // red color according to art. 26
-                    }
-                }
-
-                console.log(finalTable);
-
-                // Visualization need to happen here
-
-                var visual = document.getElementById("outResults");
-
-                var t = "";
-
-
-                // ----------- Visualize Table of fractions
-                var t3 = [];
-                t3[0] = [""].concat(p.mir.map(function(n) { return n.name; })).concat(["Сборно","Спечелени"]);
-                t3[1] = ["Мандати за:"].concat(p.mir.map(function(n){ return n.mandates; })).concat([p.totalMandates,p.totalMandates]);
-                for (i=0;i<mandates.length;i++) {
-                    t3.push([p.party[i].partyName]);
-                    for (j=0;j<mandates[i].length;j++) t3[2+i][1+j]=mandates[i][j].toFixed(3);
-                }
-                for (i=0;i<Parties;i++) {
-                    t3[2+i][1+MIR]=globalMandates[i].toFixed(3);
-                    t3[2+i][2+MIR]=winMandates[i];
-                }
-                t+= "<div class='Step2'><H2>Втора стъпка, спечелени мандати</H2></div>" + buildTable(t3,'table3');
-
-                var t3i = [];
-                t3i[0] = [""].concat(p.mir.map(function(n) { return n.name; })).concat(["Раздадени","Остават за раздаване"]);
-                for (i=0;i<intMandates.length;i++) {
-                    t3i.push([p.party[i].partyName].concat(intMandates[i]).concat([sumArray(intMandates[i]),winMandates[i]-sumArray(intMandates[i])]));
-                }
-                t+= "<div class='Step2i'><H2>Първоначални (цели) мандати</H2></div>" + buildTable(t3i,'table3i');
-
-                var t3p = [];
-                t3p[0] = [""].concat(p.mir.map(function(n) { return n.name; })).concat(["Раздадени","Спечелени"]);
-                for (i=0;i<intMandates.length;i++) {
-                    t3p.push([p.party[i].partyName].concat(tab4Mandates[i]).concat([tab4giveMandates[i],tab4wonMandates[i]]));
-                }
-                t+= "<div class='Step2p'><H2>Раздадени първоначални (цели) и допълнителни (дробни) мандати</H2></div>" + buildTable(t3p,'table3p');
-
-                // ------------ Visualize the Frac table, we need to add the colours here
-                var t4 = [[""].concat(p.mir.map(function(n){ return n.name; })).concat(["",""]),[""]];
-                t4[1][1+MIR]="Остават"; t4[1][2+MIR]="";
-                for (i=0;i<Parties;i++) {
-                    t4[i+2]=[p.party[i].partyName];
-                    for (j=0;j<MIR;j++) {
-                        t4[i+2][j+1]={
-                            value: fracMandates[i][j].toFixed(3),
-                            attr: []
-                        };
-                        if (bolded[i][j]) t4[i+2][j+1].attr.push("bolded");
-                        if (colorIndex[i][j]) t4[i+2][j+1].attr.push("colorIndex"+colorIndex[i][j]);
-                    }
-                    t4[i+2][MIR+1]=sumArray(bolded[i]);
-                    t4[i+2][MIR+2]=diffMandates[i];
-                }
-                for(j=0;j<MIR;j++) t4[1][1+j]=sumCol(bolded,j);
-                t+= "<div class='step3'><H2>Трета стъпка</H2></div>" + buildTable(t4,'fracTable') + "<BR>Цветова легенда: 1) С <B>получер шрифт</B> се отбелязват клетки, които са получили допълнителен мандат при раздаването на дробните части. В процеса на сметките, една клетка може да бъде почернена или обратно, да стане нормална (но тогава става и червена, виж 2).<BR>2) <font color=\"red\">Червените клетки</font> са клетки които повече не участват в раздаването на мандати според методиката на ЦИК. Например, ако от една клетка е взет мандат за да се сложи в друга, тя повече не участва и става червена. Или пък ако цял един МИР повече не участва в разпределението, той става изцяло червен. Т.е. Червен = забрана за операции. <BR>3) <font color=\"blue\"><B>Сините клетки</B></font> са за информация. Това са клетки които са получили допълнителен мандат, въпреки че не им се е полагало в началото. Следователното сините са едновременно и почернени.";
-
-                // ------------ Visualize Table 5
-                var t5 = [];
-                t5[0] = [""].concat(p.mir.map(function(n) { return n.name; })).concat("Сборно");
-                t5[1] = ["Мандати за:"];
-                var sum=0;
-                for (i=0;i<finalTable[0].length;i++) {
-                    t5[1][1+i] = sumCol(finalTable,i);
-                    sum+=t5[1][1+i];
-                }
-                t5[1][i+1]=sum;
-                for (i=0;i<finalTable.length;i++) {
-                    t5.push([p.party[i].partyName].concat(finalTable[i]).concat(sumArray(finalTable[i])));
-                }
-                t += "<div class='finalTable'><H2>Окончателно разпределение на мандатите по партии и MИР</H2></div>" + buildTable(t5,'finalTable');
-                // ----------- End of Table 5
-
-                visual.innerHTML = t;
-            }
-
-            function crossTableMinMax(t1,t2,max) {
-                var i; var j;
-                var val='x';
-                var row;
-                var col;
-
-                for (i=0;i<t2.length;i++) {
-                    for (j=0;j<t2[i].length;j++) {
-                        if (!t2[i][j]) continue;
-                        if (val==='x' || (max?(val<t1[i][j]):(val>t1[i][j]))) {
-                            val=t1[i][j];
-                            row = i;
-                            col = j;
-                        }
-                    }
-                }
-
-                return { val: val, row: row, col: col };
-            }
-
-            function rank(num,arr,order) { // Rank in row
+<html>
+
+<head>
+    <title>Bulgarian Parliamentary Elections 2013</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="https://www.bivol.bg/elections-code_files/bootstrap.css" rel="stylesheet">
+    <style media="screen" type="text/css">
+        select,
+        textarea,
+        input[type="text"],
+        input[type="password"],
+        input[type="datetime"],
+        input[type="datetime-local"],
+        input[type="date"],
+        input[type="month"],
+        input[type="time"],
+        input[type="week"],
+        input[type="number"],
+        input[type="email"],
+        input[type="url"],
+        input[type="search"],
+        input[type="tel"],
+        input[type="color"],
+        .uneditable-input {
+            display: inline-block;
+            height: 20px;
+            padding: 1px 1px;
+            margin-bottom: 2px;
+            font-size: 10pt;
+            line-height: 10px;
+            color: #555555;
+            vertical-align: middle;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+        }
+        
+        input {
+            width: 50px;
+        }
+        
+        .table td {
+            padding: 2px;
+            line-height: 10px;
+            text-align: left;
+            vertical-align: top;
+            border-top: 1px solid #dddddd;
+        }
+        
+        .bolded {
+            font-weight: bold;
+        }
+        
+        .colorIndex3 {
+            color: red
+        }
+        
+        .colorIndex5 {
+            color: blue
+        }
+        
+        .firstRow {
+            background: #D0D0D0;
+            font-weight: bold;
+            border: 1px solid black;
+        }
+        
+        .firstCol {
+            background: #D0D0D0;
+            border: 1px solid black;
+        }
+        
+        #finalTable .secondRow {
+            background: #F0F0F0;
+            font-weight: bold;
+            border: 1px solid black;
+        }
+        
+        #finalTable .lastCol {
+            border: 1px solid black;
+        }
+        
+        #table3p td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        #table3i td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        #table3 td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        #fracTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        #finalTable td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        #fracTable .lastCol {
+            border: 1px solid black;
+        }
+        
+        #fracTable .secondRow {
+            border: 1px solid black;
+            font-weight: bold;
+            background: #F0F0F0;
+        }
+        
+        #fracTable .underLastCol {
+            border: 1px solid black;
+        }
+        
+        #table3p .lastCol {
+            border: 1px solid black;
+        }
+        
+        #table3p .underLastCol {
+            border: 1px solid black;
+        }
+        
+        #table3i .lastCol {
+            border: 1px solid black;
+        }
+        
+        #table3i .underLastCol {
+            border: 1px solid black;
+        }
+        
+        #table3 .secondRow {
+            border: 1px solid black;
+            font-weight: bold;
+            background: #F0F0F0;
+        }
+        
+        #table3 .lastCol {
+            border: 1px solid black;
+        }
+        
+        #table3 .underLastCol {
+            border: 1px solid black;
+        }
+    </style>
+    <script>
+        // Fix some compatibility issues
+        if (typeof console === "undefined") console = {};
+        if (typeof console.log === "undefined") console.log = function(n) {};
+        if (typeof Array.prototype.push === "undefined") {
+            Array.prototype.push = function(n) {
                 var i;
-                var a = arr.slice(0); //copy array
-                a.sort().reverse(); // Sort the array
-                if (order) a.sort(); // Sort the array progresively
-                i=a.indexOf(num);
-                if (i>=0) return i+1;
-                return arr.length+1;
-            }
-
-            function rankCol(num,arr,col,order) { // Rank in col
+                if (n instanceof Array) {
+                    for (i = 0; i < n.length; i++) this[this.length] = n[i];
+                    return this;
+                }
+                this[this.length] = n;
+                return this;
+            };
+        }
+        if (typeof Array.prototype.forEach === "undefined") {
+            Array.prototype.forEach = function(n) {
+                var i;
+                for (i = 0; i < this.length; i++) n(this[i]);
+            };
+        }
+        if (typeof Array.prototype.map === "undefined") {
+            Array.prototype.map = function(n) {
                 var i;
                 var a = [];
-                for (i=0;i<arr.length;i++) a.push(arr[i][col]);
-                return rank(num,a,order);
-            }
-
-            function sumArray(t) {
-                var sum = 0;
-                t.forEach(function(n) { sum+=n; } );
-                return sum;
-            }
-
-            function sumRow(t,row) {
-                return sumArray(t[row]);
-            }
-
-            function sumCol(t,col) {
-                var sum = 0;
+                for (i = 0; i < this.length; i++) a[a.length] = n(this[i]);
+                return a;
+            };
+        }
+        if (typeof Object.prototype.keys === "undefined") {
+            Object.prototype.keys = function(n) {
                 var i;
-                for (i=t.length-1;i>=0;i--) sum+=t[i][col];
-                return sum;
-            }
-
-            function buildTable(a,id) {
-                var i,j;
-                var t = "";
-                for (i=0;i<a.length;i++) {
-                    var c=[];
-                    if (i===0) c.push("firstRow");
-                    if (i===1) c.push("secondRow");
-                    if (i===a.length-1) c.push("lastRow");
-                    if (i===a.length-2) c.push("underLastRow");
-                    c.push("row"+(i+1));
-                    t+="<tr class=\""+c.join(" ")+"\">";
-                    for (j=0;j<a[i].length;j++) {
-                        var c2=[];
-                        if (j===0) c2.push("firstCol");
-                        if (j===1) c2.push("secondCol");
-                        if (j===a[i].length-1) c2.push("lastCol");
-                        if (j===a[i].length-2) c2.push("underLastCol");
-                        c2.push("col"+(j+1));
-                        var tt = "";
-                        if (typeof a[i][j]==='object') {
-                            if (a[i][j].attr) c2 = c2.concat(a[i][j].attr);
-                               // Generate td with attributes and then add the value
-                            tt="<td class=\""+c.concat(c2).join(" ")+"\">"+a[i][j].value+"</td>";
-                        } else {
-                            tt="<td class=\""+c.concat(c2).join(" ")+"\">"+a[i][j]+"</td>";
+                var a = [];
+                for (i in n) {
+                    a[a.length] = i;
+                }
+                return a;
+            };
+        }
+        if (typeof document.getElementsByClassName === "undefined") {
+            document.getElementsByClassName = function(n) {
+                var a = [];
+                var cl = n.split(/ +/);
+                var e = document.getElementsByTagName('*');
+                var i;
+                var j;
+                for (i = 0; i < e.length; i++) {
+                    for (j = 0; j < cl.length; j++) {
+                        if (RegExp(' ' + cl[j] + ' ').test(' ' + e[i].className + ' ')) {
+                            a[a.length] = e[i];
+                            break;
                         }
-                        t+=tt;
+                    }
+                }
+                return a;
+            };
+        }
+
+        // ----
+
+        function BgElections2013codeV4() {
+            // Translation from Visual Basic to JavaScript
+            var InputData;
+            var x;
+            var y;
+            var MIR;
+            var Parties;
+            var Total;
+            var lowPerc = parseFloat(document.getElementById("lowPerc").value);
+
+            MIR = parseInt(document.getElementById("dim_mir").value);
+            Parties = parseInt(document.getElementById("dim_party").value);
+
+            var p = readSpecs();
+            console.log(p);
+            filterLowPerc(p, lowPerc); // Remove all the parties with less than 4%
+            console.log(p); // Lets dump what we have here
+
+            // Now we have in P only the values of the parties to compute
+            var i;
+            var j;
+            var mandates = [];
+            var totMandates = []; // we shall see when we use the totMandates at all, as it looks like the globalMandates is more important
+            // Distrubute the mandates
+            for (i = 0; i < Parties; i++) {
+                mandates[i] = [];
+                for (j = 0; j < MIR; j++) {
+                    mandates[i][j] = p.mir[j].mandates * p.party[i].partyVotes[j] / p.mir[j].reTotalSum; // Error, not global totalsum
+                }
+                totMandates[i] = sumArray(mandates[i]);
+            }
+
+            // Distribution of the seats between the parties on a national level, 1st step
+            var globalMandates = [];
+            for (i = 0; i < Parties; i++) globalMandates[i] = p.totalMandates * p.party[i].partySum / p.reTotalSum;
+
+            // integer parts and fractions are separated in two new tables
+            var intMandates = [];
+            var intTotMandates = [];
+            var fracMandates = [];
+            var fracTotMandates = [];
+            for (i = 0; i < Parties; i++) {
+                intMandates[i] = [];
+                fracMandates[i] = [];
+                for (j = 0; j < MIR; j++) {
+                    intMandates[i][j] = parseInt(mandates[i][j]);
+                    fracMandates[i][j] = mandates[i][j] - intMandates[i][j];
+                }
+                intTotMandates[i] = parseInt(globalMandates[i]); // globalMandates instead of totMandates
+                fracTotMandates[i] = globalMandates[i] - intTotMandates[i]; // globalMandates instead of totMandates
+            }
+
+            // Lets compute the non distributed seats
+            // Here we compute the non-distributed seats by constituency (MIR)
+            var undistSeats = [];
+            for (j = 0; j < MIR; j++) {
+                undistSeats[j] = p.mir[j].mandates - sumCol(intMandates, j);
+            }
+            var totUndMandates = p.totalMandates - sumArray(intTotMandates); //totalMandates is missing
+
+            // Make some cells bold (used in the calculation later, those are the first X (undistributed) mandates in the column)
+            var bolded = [];
+            for (i = 0; i < Parties; i++) {
+                bolded[i] = [];
+                for (j = 0; j < MIR; j++) {
+                    bolded[i][j] = 0;
+                    var r = rankCol(fracMandates[i][j], fracMandates, j);
+                    if (r <= undistSeats[j]) bolded[i][j] = 1;
+                }
+            }
+
+            var totBolded = [];
+            for (i = 0; i < Parties; i++) {
+                totBolded[i] = 0;
+                if (rank(fracTotMandates[i], fracTotMandates) <= totUndMandates) totBolded[i] = 1;
+            }
+
+            var winMandates = [];
+            // Calculate number of seats per party STEP 1
+            for (i = 0; i < Parties; i++) {
+                winMandates[i] = parseInt(globalMandates[i]) + totBolded[i];
+            } //globalMandates instead of totMandates
+
+            // Lets calculate the difference between the direct mandates and the mandate redistribution
+            // It is possible to have situation where we have removal of a mandate instead of adding one, which is wrong
+            var parMandates = [];
+            for (i = 0; i < Parties; i++) {
+                parMandates[i] = winMandates[i] - sumArray(intMandates[i]);
+                if (parMandates[i] < 0) {
+                    alert("Sorry, we have a problem in STEP2\nwe can not distribute a negative number of seats\nPlease send a message to CIK\ncik@cik.bg");
+                }
+            }
+
+            //
+            var diffMandates = []; // Here we compute the excedence
+            for (i = 0; i < Parties; i++) {
+                diffMandates[i] = sumArray(bolded[i]) - parMandates[i];
+            }
+
+            // the table with the whole and the distributed mandates together
+            var tab4Mandates = [];
+            for (i = 0; i < Parties; i++) {
+                tab4Mandates[i] = [];
+                for (j = 0; j < MIR; j++) {
+                    tab4Mandates[i][j] = bolded[i][j] + intMandates[i][j];
+                }
+            }
+
+            var tab4giveMandates = [];
+            var tab4wonMandates = [];
+            for (i = 0; i < Parties; i++) {
+                tab4giveMandates[i] = sumArray(tab4Mandates[i]);
+                tab4wonMandates[i] = winMandates[i];
+            }
+
+            // Table 3
+            var tab3sumMandates = [];
+            for (i = 0; i < Parties; i++) {
+                tab3sumMandates[i] = sumArray(intMandates[i]);
+            }
+
+            var tab3leftMandates = [];
+            for (i = 0; i < Parties; i++) {
+                tab3leftMandates[i] = winMandates[i] - tab3sumMandates[i];
+            }
+
+            // ------ Mandate redistribution
+            // From now on we work only on table 5 (fracMandates)
+
+            // In the original code there is a duplication, so I am skipping it, diffMandates[i] contains the excedence already
+
+            // The main calculation for the mandate redistribution
+            var Timer;
+            var finalTable = [];
+
+            var boldCellPlus = [];
+            //                var boldCellMinus = [];
+            var Iplus;
+            var Jplus;
+            var Iminus;
+            //                var Jminus;
+            //                var K;
+            var PlusCounter;
+            var cellMinus = [];
+            //                var c = [];
+            var Min;
+
+            var colorIndex = []; // We are moving the colorIndex outside
+            // --- Checked up to here
+            for (Timer = 0; Timer < 50; Timer++) {
+                PlusCounter = 0;
+                boldCellPlus = [];
+                for (i = 0; i < Parties; i++) {
+                    if (diffMandates[i] > 0) PlusCounter++;
+                }
+
+                if (PlusCounter === 0) {
+                    alert("След " + Timer + " повторения имаме резултат!");
+
+                    for (i = 0; i < Parties; i++) {
+                        finalTable[i] = [];
+                        for (j = 0; j < MIR; j++) {
+                            finalTable[i][j] = bolded[i][j] + intMandates[i][j];
+                        }
+                    }
+                    // Decoration is not copied
+                    // .....
+                    break;
+                }
+
+                // Article 24
+                var bBold = 0;
+                for (i = 0; i < Parties; i++) {
+                    if (typeof colorIndex[i] === 'undefined') colorIndex[i] = [];
+                    boldCellPlus[i] = [];
+                    for (j = 0; j < MIR; j++) {
+                        boldCellPlus[i][j] = 0;
+                        if (bolded[i][j] && diffMandates[i] > 0 && colorIndex[i][j] !== 3) {
+                            boldCellPlus[i][j] = 1; // Union
+                            bBold = 1;
+                        }
+                    }
+                }
+                if (!bBold) {
+                    alert("Внимание, настъпи проблем след " + Timer + " повторения в стъпка 3! Не може да се намери решение: Моля информирайте ЦИК на cik@cik.bg");
+                    break;
+                }
+                var res = crossTableMinMax(fracMandates, boldCellPlus, 0);
+                Min = res.val;
+                Iplus = res.row;
+                Jplus = res.col;
+
+                cellMinus = [];
+                var bCell = 0;
+                for (k = 0; k < Parties; k++) {
+                    cellMinus[k] = [];
+                    if (bolded[k][Jplus] === 0 && colorIndex[k][Jplus] !== 3) {
+                        cellMinus[k][Jplus] = 1;
+                        bCell = 1;
+                    }
+                }
+                if (bCell) {
+                    res = crossTableMinMax(fracMandates, cellMinus, 1);
+                    Iminus = res.row;
+                    // var counter = Jplus; //???
+                    bolded[Iplus][Jplus] = 0;
+                    bolded[Iminus][Jplus] = 1; // fixed typo
+                    colorIndex[Iplus][Jplus] = 3;
+                    colorIndex[Iminus][Jplus] = 5;
+                    for (i = 0; i < Parties; i++) {
+                        diffMandates[i] = sumArray(bolded[i]) - parMandates[i];
+                    }
+                } else {
+                    for (i = 0; i < Parties; i++) colorIndex[i][Jplus] = 3; // red color according to art. 26
+                }
+            }
+
+            console.log(finalTable);
+
+            // Visualization need to happen here
+
+            var visual = document.getElementById("outResults");
+
+            var t = "";
+
+
+            // ----------- Visualize Table of fractions
+            var t3 = [];
+            t3[0] = [""].concat(p.mir.map(function(n) {
+                return n.name;
+            })).concat(["Сборно", "Спечелени"]);
+            t3[1] = ["Мандати за:"].concat(p.mir.map(function(n) {
+                return n.mandates;
+            })).concat([p.totalMandates, p.totalMandates]);
+            for (i = 0; i < mandates.length; i++) {
+                t3.push([p.party[i].partyName]);
+                for (j = 0; j < mandates[i].length; j++) t3[2 + i][1 + j] = mandates[i][j].toFixed(3);
+            }
+            for (i = 0; i < Parties; i++) {
+                t3[2 + i][1 + MIR] = globalMandates[i].toFixed(3);
+                t3[2 + i][2 + MIR] = winMandates[i];
+            }
+            t += "<div class='Step2'><H2>Втора стъпка, спечелени мандати</H2></div>" + buildTable(t3, 'table3');
+
+            var t3i = [];
+            t3i[0] = [""].concat(p.mir.map(function(n) {
+                return n.name;
+            })).concat(["Раздадени", "Остават за раздаване"]);
+            for (i = 0; i < intMandates.length; i++) {
+                t3i.push([p.party[i].partyName].concat(intMandates[i]).concat([sumArray(intMandates[i]), winMandates[i] - sumArray(intMandates[i])]));
+            }
+            t += "<div class='Step2i'><H2>Първоначални (цели) мандати</H2></div>" + buildTable(t3i, 'table3i');
+
+            var t3p = [];
+            t3p[0] = [""].concat(p.mir.map(function(n) {
+                return n.name;
+            })).concat(["Раздадени", "Спечелени"]);
+            for (i = 0; i < intMandates.length; i++) {
+                t3p.push([p.party[i].partyName].concat(tab4Mandates[i]).concat([tab4giveMandates[i], tab4wonMandates[i]]));
+            }
+            t += "<div class='Step2p'><H2>Раздадени първоначални (цели) и допълнителни (дробни) мандати</H2></div>" + buildTable(t3p, 'table3p');
+
+            // ------------ Visualize the Frac table, we need to add the colours here
+            var t4 = [
+                [""].concat(p.mir.map(function(n) {
+                    return n.name;
+                })).concat(["", ""]), [""]
+            ];
+            t4[1][1 + MIR] = "Остават";
+            t4[1][2 + MIR] = "";
+            for (i = 0; i < Parties; i++) {
+                t4[i + 2] = [p.party[i].partyName];
+                for (j = 0; j < MIR; j++) {
+                    t4[i + 2][j + 1] = {
+                        value: fracMandates[i][j].toFixed(3),
+                        attr: []
                     };
-                    t+="</tr>\n";
+                    if (bolded[i][j]) t4[i + 2][j + 1].attr.push("bolded");
+                    if (colorIndex[i][j]) t4[i + 2][j + 1].attr.push("colorIndex" + colorIndex[i][j]);
                 }
-                return "<table class=\"table\" "+((id)?"id='"+id+"' ":"")+">\n"+t+"</table>\n";
+                t4[i + 2][MIR + 1] = sumArray(bolded[i]);
+                t4[i + 2][MIR + 2] = diffMandates[i];
             }
+            for (j = 0; j < MIR; j++) t4[1][1 + j] = sumCol(bolded, j);
+            t += "<div class='step3'><H2>Трета стъпка</H2></div>" + buildTable(t4, 'fracTable') + "<BR>Цветова легенда: 1) С <B>получер шрифт</B> се отбелязват клетки, които са получили допълнителен мандат при раздаването на дробните части. В процеса на сметките, една клетка може да бъде почернена или обратно, да стане нормална (но тогава става и червена, виж 2).<BR>2) <font color=\"red\">Червените клетки</font> са клетки които повече не участват в раздаването на мандати според методиката на ЦИК. Например, ако от една клетка е взет мандат за да се сложи в друга, тя повече не участва и става червена. Или пък ако цял един МИР повече не участва в разпределението, той става изцяло червен. Т.е. Червен = забрана за операции. <BR>3) <font color=\"blue\"><B>Сините клетки</B></font> са за информация. Това са клетки които са получили допълнителен мандат, въпреки че не им се е полагало в началото. Следователното сините са едновременно и почернени.";
 
-            function filterLowPerc(p,perc) { // Will remove from array of objects p (output from readSpecs) everything under "perc" percentage and will recalculate
-                var i;
-                for (i=p.party.length-1;i>=0;i--) {
-                    if (p.party[i].partyPerc<perc) p.party.splice(i,1);
-                }
-                // Recalculate the total sum and the perc
-                p.reTotalSum = 0;
-                for (i=p.party.length-1;i>=0;i--) p.reTotalSum += p.party[i].partySum;
-                for (i=p.party.length-1;i>=0;i--) p.party[i].rePartyPerc = 100*p.party[i].partySum/p.reTotalSum;
-                for (i=p.mir.length-1;i>=0;i--) {
-                    p.mir[i].reTotalSum = 0;
-                    p.party.forEach(function(n) { p.mir[i].reTotalSum+=n.partyVotes[i]; });
-                }
+            // ------------ Visualize Table 5
+            var t5 = [];
+            t5[0] = [""].concat(p.mir.map(function(n) {
+                return n.name;
+            })).concat("Сборно");
+            t5[1] = ["Мандати за:"];
+            var sum = 0;
+            for (i = 0; i < finalTable[0].length; i++) {
+                t5[1][1 + i] = sumCol(finalTable, i);
+                sum += t5[1][1 + i];
             }
-
-            function readSpecs() { // Read the specs from the table into an array of objects for easy manipulation
-                var tr = document.getElementsByClassName("partyRow");
-                var i,j;
-                var p={ party: [] , mir: [], totalSum: 0, reTotalSum: 0, totalMandates: 0 };
-                var dim_mir = document.getElementById("dim_mir").value;
-                var dim_party = document.getElementById("dim_party").value;
-                for (i=0;i<tr.length;i++) {
-                    var row = tr.item(i);
-                    var pp = [];
-                    var po = { partyName: "", partySum: 0, partyPerc: 0, rePartyPerc:0, partyVotes: []};
-                    for (j=0;j<dim_mir;j++) pp.push(parseInt(row.cells[1+j].firstChild.value));
-                    po.partyVotes=pp;
-                    po.partyName=row.cells[0].firstChild.value; // get the name
-                    po.partySum = sumArray(pp);
-                    p.totalSum+=po.partySum;
-                    p.party.push(po);
-                }
-                p.party.forEach(function(n) { n.partyPerc = 100*n.partySum/(p.totalSum?p.totalSum:1); n.rePartyPerc = n.partyPerc; });
-                var row = document.getElementsByClassName("manHeader").item(0);
-                for (j=0;j<dim_mir;j++) {
-                    p.mir[j]={ mandates: parseInt(row.cells[1+j].firstChild.value), name: "", totalSum:0, reTotalSum:0 };
-                    p.party.forEach(function(n) { p.mir[j].totalSum+=n.partyVotes[j]; });
-                    p.mir[j].reTotalSum = p.mir[j].totalSum;
-                    p.totalMandates+=p.mir[j].mandates;
-                }
-                var row = document.getElementsByClassName("inHeader").item(0);
-                for (j=0;j<dim_mir;j++) p.mir[j].name=row.cells[1+j].firstChild.value;
-                p.reTotalSum = p.totalSum;
-                return p;
+            t5[1][i + 1] = sum;
+            for (i = 0; i < finalTable.length; i++) {
+                t5.push([p.party[i].partyName].concat(finalTable[i]).concat(sumArray(finalTable[i])));
             }
+            t += "<div class='finalTable'><H2>Окончателно разпределение на мандатите по партии и MИР</H2></div>" + buildTable(t5, 'finalTable');
+            // ----------- End of Table 5
 
-            function calcBgElections2013() {
-                BgElections2013codeV4();
-            }
+            visual.innerHTML = t;
+        }
 
-            function sumRow(name,output) {
-                var o = document.getElementById(output);
-                var s = document.getElementsByClassName(name);
-                var i, sum = 0;
-                for (i=s.length-1;i>=0;i--) {
-                    if (s.item(i).tagName==="INPUT") sum+=parseInt(s.item(i).value);
-                    else
-                        sum+=parseInt(s.item(i).innerHTML);
-                }
-                o.innerHTML=sum;
-            };
+        function crossTableMinMax(t1, t2, max) {
+            var i;
+            var j;
+            var val = 'x';
+            var row;
+            var col;
 
-            function calcProc() {
-                var total = document.getElementById("totalSum").innerHTML;
-                var dim_party = document.getElementById("dim_party").value;
-                var i;
-                for (i=dim_party;i;i--) {
-                    var s = document.getElementById("sumParty"+i).innerHTML;
-                    var o = document.getElementById("procParty"+i);
-                    o.innerHTML = (100*parseInt(s)/parseInt(total)).toFixed(3) + "%";
-                }
-            }
-
-            function genTable() {
-                var visual = document.getElementById("visual");
-                // Clear the data
-                visual.innerHTML="";
-
-                var dim_mir = parseInt(document.getElementById("dim_mir").value);
-                var dim_party = parseInt(document.getElementById("dim_party").value);
-
-                if (dim_mir<1) return alert("Некоректно количество МИР");
-                if (dim_party<1) return alert("Некоректно количество Партии");
-
-                // Generate the table
-                var t = "";
-                var i; var j;
-
-                // Table header
-                t += "<tr class='inHeader'><td>&nbsp;</td>";
-                for (i=1;i<=dim_mir;i++) { t = t + "<td><input type=text size=6  class=\"manName\" value=\"МИР"+i+"\"></td>"; }
-
-                t += "<td>Общо:</td><td>Проценти:</td></tr>\n";
-
-                // Мандати за района
-                t += "<tr class='manHeader'><td>Мандати за района:</td>";
-                for (i=dim_mir;i;i--) { t = t + "<td><input type=text value='0' class='mandate' size=3 onChange='sumRow(\"mandate\",\"sumMandates\")'></td>"; }
-                t += "<td id='sumMandates'>0</td><td>&nbsp;</td></tr>\n";
-
-                // Партии
-                for (j=1;j<=dim_party;j++) {
-                    t += "<tr class='partyRow'><td><input type=text size=10 class='partyName' value='Партия "+j+"'></td>";
-                    for (i=dim_mir;i;i--) {
-                        t += "<td><input type=text size=3 value='0' class='partyCol"+i+" partyRow"+j+"' onChange='sumRow(\"partyRow"+j+"\",\"sumParty"+j+"\"); sumRow(\"partyCol"+i+"\",\"sumPartyCol"+i+"\"); sumRow(\"partyRowSums\",\"totalSum\"); calcProc();'></td>";
+            for (i = 0; i < t2.length; i++) {
+                for (j = 0; j < t2[i].length; j++) {
+                    if (!t2[i][j]) continue;
+                    if (val === 'x' || (max ? (val < t1[i][j]) : (val > t1[i][j]))) {
+                        val = t1[i][j];
+                        row = i;
+                        col = j;
                     }
-                    t += "<td class='partyRowSums' id='sumParty"+j+"'>0</td><td id='procParty"+j+"'>0.000%</td></tr>\n";
                 }
-
-                // Sum footer
-                t += "<tr class='sumFooter'><td>&nbsp;</td>";
-                for (i=dim_mir;i;i--) { t += "<td id='sumPartyCol"+i+"'>0</td>"; }
-                t += "<td id='totalSum'>0</td><td>100.000%</td></tr>\n";
-
-                // Lets set the sumout
-
-                visual.innerHTML = "<form>Не се броят партии спечелили под: <input id='lowPerc' type=text size=3 value=4>% <br><table class=\"table\">"+t+"</table><input type=button value=\"Калкулирай\" onClick=\"calcBgElections2013();\" class=\"btn\" ></form><div id=\"outResults\"></div>";
             }
-			
-			// Predefined demo data
-			
-            var Demo2009 = {
-                pVotes: {
-                    "РЗС":[18259,7823,8104,8409,2093,3228,2263,3329,781,5199,4465,2341,6164,7006,7371,10753,6868,983,7097,1883,3280,1605,7997,7152,8327,6055,8870,2272,5819,2482,4719,1573],
-                    "ГЕРБ":[69710,90033,118111,62371,20273,38422,35727,40285,18648,31432,33824,31403,62423,31366,59081,88944,77500,18885,55732,23595,40912,24658,98933,88745,104333,59454,79364,18759,57706,36093,28493,33368],
-                    "ДПС":[32811,38239,23835,12211,2830,7104,3950,14653,67770,969,6695,2187,27283,979,10718,9385,22374,43960,18752,30458,8988,16559,1129,1307,1205,7134,9579,32697,22898,35715,2221,75786],
-                    "Атака":[12064,48398,34524,16732,3408,9451,7545,14097,2305,4735,8626,6956,13083,5026,20384,11549,21247,4828,16290,6605,10397,2933,10037,10168,10640,15215,21307,6086,15450,9798,9591,6232],
-                    "КБ":[24601,32569,42275,25119,15906,24978,12836,25650,6304,18633,16862,18651,27629,16618,30421,31785,39927,6932,20313,10974,22552,16782,43915,31412,36418,31475,39356,12345,25069,17786,18172,3849],
-                    "СК":[11518,12444,15551,8678,3103,4590,3819,4533,983,4510,5234,4908,7809,4677,11532,16425,11507,1967,6578,1073,3871,2412,43120,33856,22992,6566,10353,1432,5131,2550,2906,9043]
-                },
-                mandates: [9,11,12,8,3,6,4,6,4,4,4,5,8,4,9,9,10,4,7,4,6,4,11,10,10,7,10,4,7,5,4,0],
-                mirNames: [
-                    "МИР1","МИР2","МИР3","МИР4","МИР5","МИР6","МИР7","МИР8","МИР9","МИР10",
-                    "МИР11","МИР12","МИР13","МИР14","МИР15","МИР16","МИР17","МИР18","МИР19","МИР20",
-                    "МИР21","МИР22","МИР23","МИР24","МИР25","МИР26","МИР27","МИР28","МИР29","МИР30",
-                    "МИР31","МИР32"
-                ]
+
+            return {
+                val: val,
+                row: row,
+                col: col
             };
-			
-			var Demo2013 = {
-                pVotes: {
-                    "БСП":[32060,45533,48496,38330,17662,28772,15678,23049,8943,22038,20218,23062,33395,20687,41856,41247,46852,9721,27581,13897,23874,17638,61912,46484,55470,35896,50103,13306,33219,19478,21585,4907],
-                    "Атака":[11326,7801,19909,9989,3418,7679,5051,6016,1333,7312,4763,8212,13379,7166,11449,13252,11731,2034,9486,2614,6610,1403,13086,12325,14912,9917,12626,2751,8408,5304,4364,3018],
-                    "ГЕРБ":[47632,66509,73163,32966,12283,22984,21862,25199,12721,19610,19431,19683,34974,20046,34146,62003,48904,10325,32545,16127,25791,15652,78117,63863,69828,37798,48020,10771,34038,21590,19152,23090],
-                    "ДПС":[19005,22680,14219,7392,474,7971,2983,10465,46407,445,4672,2525,17258,455,9269,6200,14885,28149,10827,17411,5764,10078,1154,1129,1553,3278,13097,21449,17637,25131,1770,54353]
-                },
-                mandates: [11,14,15,8,4,6,4,6,5,4,5,5,9,4,9,11,11,4,8,4,6,4,16,12,14,8,11,4,8,6,4,0],
-                mirNames: [
-                    "МИР1","МИР2","МИР3","МИР4","МИР5","МИР6","МИР7","МИР8","МИР9","МИР10",
-                    "МИР11","МИР12","МИР13","МИР14","МИР15","МИР16","МИР17","МИР18","МИР19","МИР20",
-                    "МИР21","МИР22","МИР23","МИР24","МИР25","МИР26","МИР27","МИР28","МИР29","МИР30",
-                    "МИР31","МИР32"
-                ]
-            };
-            
-            var DemoBug = {
-                pVotes: {
-                    "П 1":[9000,69900],
-                    "П 2":[31000,70100]
-                },
-                mandates: [4,4],
-                mirNames: [
-                    "МИР1","МИР2"
-                ]
-            };
-            // Predefined data functions
-            function fillDemo2013() {
-            	var data = Demo2013;
-            	console.log("fillDemo",data);
-            	fillDemo(data);
-            }
-            
-            function fillDemo2009() {
-            	var data = Demo2009;
-            	console.log("fillDemo",data);
-            	fillDemo(data);
-            }
-            
-             function fillDemoBug() {
-            	var data = DemoBug;
-            	console.log("fillDemo",data);
-            	fillDemo(data);
-            }
-            
-            // Data fill function
-            function fillDemo(myData) {
-                var data = myData || Demo2009;
-                console.log("fillDemo",data);
+        }
 
-                var pk = Object.keys(data.pVotes).sort();
-                var party = pk.length;
-                var mir = data.mandates.length;
+        function rank(num, arr, order) { // Rank in row
+            var i;
+            var a = arr.slice(0); //copy array
+            a.sort().reverse(); // Sort the array
+            if (order) a.sort(); // Sort the array progresively
+            i = a.indexOf(num);
+            if (i >= 0) return i + 1;
+            return arr.length + 1;
+        }
 
-                document.getElementById("dim_mir").value = mir;
-                document.getElementById("dim_party").value = party;
+        function rankCol(num, arr, col, order) { // Rank in col
+            var i;
+            var a = [];
+            for (i = 0; i < arr.length; i++) a.push(arr[i][col]);
+            return rank(num, a, order);
+        }
 
-                genTable();
+        function sumArray(t) {
+            var sum = 0;
+            t.forEach(function(n) {
+                sum += n;
+            });
+            return sum;
+        }
 
-                var m = document.getElementsByClassName("mandate");
-                var i;
+        function sumRow(t, row) {
+            return sumArray(t[row]);
+        }
 
-                for (i=0;i<mir;i++) m.item(i).value=parseInt(data.mandates[i]);
-                sumRow("mandate","sumMandates");
-                for (i=0;i<pk.length;i++) {
-                    m = document.getElementsByClassName("partyRow"+(i+1));
-                    for (var j = 0;j<mir;j++) m.item(j).value = data.pVotes[pk[i]][j];
-                    sumRow("partyRow"+(i+1),"sumParty"+(i+1));
-                    m = document.getElementsByClassName("partyName");
-                    m.item(i).value = pk[i];
-                }
-                m=document.getElementsByClassName("manName");
-                for (i=0;i<mir;i++) {
-                    sumRow("partyCol"+(i+1),"sumPartyCol"+(i+1));
-                    if (data.mirNames[i]) m.item(i).value = data.mirNames[i];
-                }
-                sumRow("partyRowSums","totalSum"); calcProc();
-            }
+        function sumCol(t, col) {
+            var sum = 0;
+            var i;
+            for (i = t.length - 1; i >= 0; i--) sum += t[i][col];
+            return sum;
+        }
 
-            function importFromCSV(txt) {
-                // This function is using aggresively new JS functions and will not work on old browsers
-                var o = {};
-                txt.match(/(\S+);(\S+);(\d+)/g).forEach(function (n) {
-                    var r = n.match(/(\S+);(\S+);(\d+)/);
-                    if (r) { // a bit of duplication
-                        if (typeof o[r[2]] === 'undefined') o[r[2]] = [];
-                        o[r[2]][parseInt(r[1])-1]=r[3];
+        function buildTable(a, id) {
+            var i, j;
+            var t = "";
+            for (i = 0; i < a.length; i++) {
+                var c = [];
+                if (i === 0) c.push("firstRow");
+                if (i === 1) c.push("secondRow");
+                if (i === a.length - 1) c.push("lastRow");
+                if (i === a.length - 2) c.push("underLastRow");
+                c.push("row" + (i + 1));
+                t += "<tr class=\"" + c.join(" ") + "\">";
+                for (j = 0; j < a[i].length; j++) {
+                    var c2 = [];
+                    if (j === 0) c2.push("firstCol");
+                    if (j === 1) c2.push("secondCol");
+                    if (j === a[i].length - 1) c2.push("lastCol");
+                    if (j === a[i].length - 2) c2.push("underLastCol");
+                    c2.push("col" + (j + 1));
+                    var tt = "";
+                    if (typeof a[i][j] === 'object') {
+                        if (a[i][j].attr) c2 = c2.concat(a[i][j].attr);
+                        // Generate td with attributes and then add the value
+                        tt = "<td class=\"" + c.concat(c2).join(" ") + "\">" + a[i][j].value + "</td>";
+                    } else {
+                        tt = "<td class=\"" + c.concat(c2).join(" ") + "\">" + a[i][j] + "</td>";
                     }
-                });
-                console.log("import",o);
-                fillDemo({
-                    mandates: [11,14,15,8,4,6,4,6,5,4,5,5,9,4,9,11,11,4,8,4,6,4,16,12,14,8,11,4,8,6,4,0],
-                    mirNames: [
-                        "МИР1","МИР2","МИР3","МИР4","МИР5","МИР6","МИР7","МИР8","МИР9","МИР10",
-                        "МИР11","МИР12","МИР13","МИР14","МИР15","МИР16","МИР17","МИР18","МИР19","МИР20",
-                        "МИР21","МИР22","МИР23","МИР24","МИР25","МИР26","МИР27","МИР28","МИР29","МИР30",
-                        "МИР31","МИР32"
-                    ],
-                    pVotes: o
-                });
-            }
-
-            function loadFromFile() {
-                var f = document.getElementById("filename");
-                var r = new FileReader();
-                r.onload = function(e) {
-                    console.log("file is loaded ",e);
-                    console.log("file content is ",e.target.result);
-                    importFromCSV(e.target.result);
+                    t += tt;
                 };
-                r.readAsText(f.files[0],"UTF-8");
+                t += "</tr>\n";
             }
-        </script>
-    </head>
-    <body>
-        <div class="container">
-         <div class="row">
-        <a href="https://www.bivol.bg" target="_blank"><div class="span12"><img src="https://www.bivol.bg/images/stories/logo-bivol.png" alt="Bivol.bg" /></a></div>   
-    </div>
-            <h1>Пресметни си сам резултатите от Парламентарни избори 2013</h1>
-            <div>
+            return "<table class=\"table\" " + ((id) ? "id='" + id + "' " : "") + ">\n" + t + "</table>\n";
+        }
+
+        function filterLowPerc(p, perc) { // Will remove from array of objects p (output from readSpecs) everything under "perc" percentage and will recalculate
+            var i;
+            for (i = p.party.length - 1; i >= 0; i--) {
+                if (p.party[i].partyPerc < perc) p.party.splice(i, 1);
+            }
+            // Recalculate the total sum and the perc
+            p.reTotalSum = 0;
+            for (i = p.party.length - 1; i >= 0; i--) p.reTotalSum += p.party[i].partySum;
+            for (i = p.party.length - 1; i >= 0; i--) p.party[i].rePartyPerc = 100 * p.party[i].partySum / p.reTotalSum;
+            for (i = p.mir.length - 1; i >= 0; i--) {
+                p.mir[i].reTotalSum = 0;
+                p.party.forEach(function(n) {
+                    p.mir[i].reTotalSum += n.partyVotes[i];
+                });
+            }
+        }
+
+        function readSpecs() { // Read the specs from the table into an array of objects for easy manipulation
+            var tr = document.getElementsByClassName("partyRow");
+            var i, j;
+            var p = {
+                party: [],
+                mir: [],
+                totalSum: 0,
+                reTotalSum: 0,
+                totalMandates: 0
+            };
+            var dim_mir = document.getElementById("dim_mir").value;
+            var dim_party = document.getElementById("dim_party").value;
+            for (i = 0; i < tr.length; i++) {
+                var row = tr.item(i);
+                var pp = [];
+                var po = {
+                    partyName: "",
+                    partySum: 0,
+                    partyPerc: 0,
+                    rePartyPerc: 0,
+                    partyVotes: []
+                };
+                for (j = 0; j < dim_mir; j++) pp.push(parseInt(row.cells[1 + j].firstChild.value));
+                po.partyVotes = pp;
+                po.partyName = row.cells[0].firstChild.value; // get the name
+                po.partySum = sumArray(pp);
+                p.totalSum += po.partySum;
+                p.party.push(po);
+            }
+            p.party.forEach(function(n) {
+                n.partyPerc = 100 * n.partySum / (p.totalSum ? p.totalSum : 1);
+                n.rePartyPerc = n.partyPerc;
+            });
+            var row = document.getElementsByClassName("manHeader").item(0);
+            for (j = 0; j < dim_mir; j++) {
+                p.mir[j] = {
+                    mandates: parseInt(row.cells[1 + j].firstChild.value),
+                    name: "",
+                    totalSum: 0,
+                    reTotalSum: 0
+                };
+                p.party.forEach(function(n) {
+                    p.mir[j].totalSum += n.partyVotes[j];
+                });
+                p.mir[j].reTotalSum = p.mir[j].totalSum;
+                p.totalMandates += p.mir[j].mandates;
+            }
+            var row = document.getElementsByClassName("inHeader").item(0);
+            for (j = 0; j < dim_mir; j++) p.mir[j].name = row.cells[1 + j].firstChild.value;
+            p.reTotalSum = p.totalSum;
+            return p;
+        }
+
+        function calcBgElections2013() {
+            BgElections2013codeV4();
+        }
+
+        function sumRow(name, output) {
+            var o = document.getElementById(output);
+            var s = document.getElementsByClassName(name);
+            var i, sum = 0;
+            for (i = s.length - 1; i >= 0; i--) {
+                if (s.item(i).tagName === "INPUT") sum += parseInt(s.item(i).value);
+                else
+                    sum += parseInt(s.item(i).innerHTML);
+            }
+            o.innerHTML = sum;
+        };
+
+        function calcProc() {
+            var total = document.getElementById("totalSum").innerHTML;
+            var dim_party = document.getElementById("dim_party").value;
+            var i;
+            for (i = dim_party; i; i--) {
+                var s = document.getElementById("sumParty" + i).innerHTML;
+                var o = document.getElementById("procParty" + i);
+                o.innerHTML = (100 * parseInt(s) / parseInt(total)).toFixed(3) + "%";
+            }
+        }
+
+        function genTable() {
+            var visual = document.getElementById("visual");
+            // Clear the data
+            visual.innerHTML = "";
+
+            var dim_mir = parseInt(document.getElementById("dim_mir").value);
+            var dim_party = parseInt(document.getElementById("dim_party").value);
+
+            if (dim_mir < 1) return alert("Некоректно количество МИР");
+            if (dim_party < 1) return alert("Некоректно количество Партии");
+
+            // Generate the table
+            var t = "";
+            var i;
+            var j;
+
+            // Table header
+            t += "<tr class='inHeader'><td>&nbsp;</td>";
+            for (i = 1; i <= dim_mir; i++) {
+                t = t + "<td><input type=text size=6  class=\"manName\" value=\"МИР" + i + "\"></td>";
+            }
+
+            t += "<td>Общо:</td><td>Проценти:</td></tr>\n";
+
+            // Мандати за района
+            t += "<tr class='manHeader'><td>Мандати за района:</td>";
+            for (i = dim_mir; i; i--) {
+                t = t + "<td><input type=text value='0' class='mandate' size=3 onChange='sumRow(\"mandate\",\"sumMandates\")'></td>";
+            }
+            t += "<td id='sumMandates'>0</td><td>&nbsp;</td></tr>\n";
+
+            // Партии
+            for (j = 1; j <= dim_party; j++) {
+                t += "<tr class='partyRow'><td><input type=text size=10 class='partyName' value='Партия " + j + "'></td>";
+                for (i = dim_mir; i; i--) {
+                    t += "<td><input type=text size=3 value='0' class='partyCol" + i + " partyRow" + j + "' onChange='sumRow(\"partyRow" + j + "\",\"sumParty" + j + "\"); sumRow(\"partyCol" + i + "\",\"sumPartyCol" + i + "\"); sumRow(\"partyRowSums\",\"totalSum\"); calcProc();'></td>";
+                }
+                t += "<td class='partyRowSums' id='sumParty" + j + "'>0</td><td id='procParty" + j + "'>0.000%</td></tr>\n";
+            }
+
+            // Sum footer
+            t += "<tr class='sumFooter'><td>&nbsp;</td>";
+            for (i = dim_mir; i; i--) {
+                t += "<td id='sumPartyCol" + i + "'>0</td>";
+            }
+            t += "<td id='totalSum'>0</td><td>100.000%</td></tr>\n";
+
+            // Lets set the sumout
+
+            visual.innerHTML = "<form>Не се броят партии спечелили под: <input id='lowPerc' type=text size=3 value=4>% <br><table class=\"table\">" + t + "</table><input type=button value=\"Калкулирай\" onClick=\"calcBgElections2013();\" class=\"btn\" ></form><div id=\"outResults\"></div>";
+        }
+
+        // Predefined demo data
+
+        var Demo2009 = {
+            pVotes: {
+                "РЗС": [18259, 7823, 8104, 8409, 2093, 3228, 2263, 3329, 781, 5199, 4465, 2341, 6164, 7006, 7371, 10753, 6868, 983, 7097, 1883, 3280, 1605, 7997, 7152, 8327, 6055, 8870, 2272, 5819, 2482, 4719, 1573],
+                "ГЕРБ": [69710, 90033, 118111, 62371, 20273, 38422, 35727, 40285, 18648, 31432, 33824, 31403, 62423, 31366, 59081, 88944, 77500, 18885, 55732, 23595, 40912, 24658, 98933, 88745, 104333, 59454, 79364, 18759, 57706, 36093, 28493, 33368],
+                "ДПС": [32811, 38239, 23835, 12211, 2830, 7104, 3950, 14653, 67770, 969, 6695, 2187, 27283, 979, 10718, 9385, 22374, 43960, 18752, 30458, 8988, 16559, 1129, 1307, 1205, 7134, 9579, 32697, 22898, 35715, 2221, 75786],
+                "Атака": [12064, 48398, 34524, 16732, 3408, 9451, 7545, 14097, 2305, 4735, 8626, 6956, 13083, 5026, 20384, 11549, 21247, 4828, 16290, 6605, 10397, 2933, 10037, 10168, 10640, 15215, 21307, 6086, 15450, 9798, 9591, 6232],
+                "КБ": [24601, 32569, 42275, 25119, 15906, 24978, 12836, 25650, 6304, 18633, 16862, 18651, 27629, 16618, 30421, 31785, 39927, 6932, 20313, 10974, 22552, 16782, 43915, 31412, 36418, 31475, 39356, 12345, 25069, 17786, 18172, 3849],
+                "СК": [11518, 12444, 15551, 8678, 3103, 4590, 3819, 4533, 983, 4510, 5234, 4908, 7809, 4677, 11532, 16425, 11507, 1967, 6578, 1073, 3871, 2412, 43120, 33856, 22992, 6566, 10353, 1432, 5131, 2550, 2906, 9043]
+            },
+            mandates: [9, 11, 12, 8, 3, 6, 4, 6, 4, 4, 4, 5, 8, 4, 9, 9, 10, 4, 7, 4, 6, 4, 11, 10, 10, 7, 10, 4, 7, 5, 4, 0],
+            mirNames: [
+                "МИР1", "МИР2", "МИР3", "МИР4", "МИР5", "МИР6", "МИР7", "МИР8", "МИР9", "МИР10",
+                "МИР11", "МИР12", "МИР13", "МИР14", "МИР15", "МИР16", "МИР17", "МИР18", "МИР19", "МИР20",
+                "МИР21", "МИР22", "МИР23", "МИР24", "МИР25", "МИР26", "МИР27", "МИР28", "МИР29", "МИР30",
+                "МИР31", "МИР32"
+            ]
+        };
+
+        var Demo2013 = {
+            pVotes: {
+                "БСП": [32060, 45533, 48496, 38330, 17662, 28772, 15678, 23049, 8943, 22038, 20218, 23062, 33395, 20687, 41856, 41247, 46852, 9721, 27581, 13897, 23874, 17638, 61912, 46484, 55470, 35896, 50103, 13306, 33219, 19478, 21585, 4907],
+                "Атака": [11326, 7801, 19909, 9989, 3418, 7679, 5051, 6016, 1333, 7312, 4763, 8212, 13379, 7166, 11449, 13252, 11731, 2034, 9486, 2614, 6610, 1403, 13086, 12325, 14912, 9917, 12626, 2751, 8408, 5304, 4364, 3018],
+                "ГЕРБ": [47632, 66509, 73163, 32966, 12283, 22984, 21862, 25199, 12721, 19610, 19431, 19683, 34974, 20046, 34146, 62003, 48904, 10325, 32545, 16127, 25791, 15652, 78117, 63863, 69828, 37798, 48020, 10771, 34038, 21590, 19152, 23090],
+                "ДПС": [19005, 22680, 14219, 7392, 474, 7971, 2983, 10465, 46407, 445, 4672, 2525, 17258, 455, 9269, 6200, 14885, 28149, 10827, 17411, 5764, 10078, 1154, 1129, 1553, 3278, 13097, 21449, 17637, 25131, 1770, 54353]
+            },
+            mandates: [11, 14, 15, 8, 4, 6, 4, 6, 5, 4, 5, 5, 9, 4, 9, 11, 11, 4, 8, 4, 6, 4, 16, 12, 14, 8, 11, 4, 8, 6, 4, 0],
+            mirNames: [
+                "МИР1", "МИР2", "МИР3", "МИР4", "МИР5", "МИР6", "МИР7", "МИР8", "МИР9", "МИР10",
+                "МИР11", "МИР12", "МИР13", "МИР14", "МИР15", "МИР16", "МИР17", "МИР18", "МИР19", "МИР20",
+                "МИР21", "МИР22", "МИР23", "МИР24", "МИР25", "МИР26", "МИР27", "МИР28", "МИР29", "МИР30",
+                "МИР31", "МИР32"
+            ]
+        };
+
+        var DemoBug = {
+            pVotes: {
+                "П 1": [9000, 69900],
+                "П 2": [31000, 70100]
+            },
+            mandates: [4, 4],
+            mirNames: [
+                "МИР1", "МИР2"
+            ]
+        };
+        // Predefined data functions
+        function fillDemo2013() {
+            var data = Demo2013;
+            console.log("fillDemo", data);
+            fillDemo(data);
+        }
+
+        function fillDemo2009() {
+            var data = Demo2009;
+            console.log("fillDemo", data);
+            fillDemo(data);
+        }
+
+        function fillDemoBug() {
+            var data = DemoBug;
+            console.log("fillDemo", data);
+            fillDemo(data);
+        }
+
+        function item(m, i) {
+            if (m.item) return m.item(i);
+            return m[i]
+        }
+
+        // Data fill function
+        function fillDemo(myData) {
+            var data = myData || Demo2009;
+            console.log("fillDemo", data);
+
+            var pk = Object.keys(data.pVotes).sort();
+            var party = pk.length;
+            var mir = data.mandates.length;
+
+            document.getElementById("dim_mir").value = mir;
+            document.getElementById("dim_party").value = party;
+
+            genTable();
+
+            var m = document.getElementsByClassName("mandate");
+            var i;
+
+            for (i = 0; i < mir; i++) item(m, i).value = parseInt(data.mandates[i]);
+            sumRow("mandate", "sumMandates");
+            for (i = 0; i < pk.length; i++) {
+                m = document.getElementsByClassName("partyRow" + (i + 1));
+                for (var j = 0; j < mir; j++) item(m, j).value = data.pVotes[pk[i]][j];
+                sumRow("partyRow" + (i + 1), "sumParty" + (i + 1));
+                m = document.getElementsByClassName("partyName");
+                item(m, i).value = pk[i];
+            }
+            m = document.getElementsByClassName("manName");
+            for (i = 0; i < mir; i++) {
+                sumRow("partyCol" + (i + 1), "sumPartyCol" + (i + 1));
+                if (data.mirNames[i]) item(m, i).value = data.mirNames[i];
+            }
+            sumRow("partyRowSums", "totalSum");
+            calcProc();
+        }
+
+        function importFromCSV(txt) {
+            // This function is using aggresively new JS functions and will not work on old browsers
+            var o = {};
+            txt.match(/(\S+);(\S+);(\d+)/g).forEach(function(n) {
+                var r = n.match(/(\S+);(\S+);(\d+)/);
+                if (r) { // a bit of duplication
+                    if (typeof o[r[2]] === 'undefined') o[r[2]] = [];
+                    o[r[2]][parseInt(r[1]) - 1] = r[3];
+                }
+            });
+            console.log("import", o);
+            fillDemo({
+                mandates: [11, 14, 15, 8, 4, 6, 4, 6, 5, 4, 5, 5, 9, 4, 9, 11, 11, 4, 8, 4, 6, 4, 16, 12, 14, 8, 11, 4, 8, 6, 4, 0],
+                mirNames: [
+                    "МИР1", "МИР2", "МИР3", "МИР4", "МИР5", "МИР6", "МИР7", "МИР8", "МИР9", "МИР10",
+                    "МИР11", "МИР12", "МИР13", "МИР14", "МИР15", "МИР16", "МИР17", "МИР18", "МИР19", "МИР20",
+                    "МИР21", "МИР22", "МИР23", "МИР24", "МИР25", "МИР26", "МИР27", "МИР28", "МИР29", "МИР30",
+                    "МИР31", "МИР32"
+                ],
+                pVotes: o
+            });
+        }
+
+        function loadFromFile() {
+            var f = document.getElementById("filename");
+            var r = new FileReader();
+            r.onload = function(e) {
+                console.log("file is loaded ", e);
+                console.log("file content is ", e.target.result);
+                importFromCSV(e.target.result);
+            };
+            r.readAsText(f.files[0], "UTF-8");
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <a href="https://www.bivol.bg" target="_blank">
+                <div class="span12"><img src="https://www.bivol.bg/images/stories/logo-bivol.png" alt="Bivol.bg" /></a>
+            </div>
+        </div>
+        <h1>Пресметни си сам резултатите от Парламентарни избори 2013</h1>
+        <div>
             <p>Програма за пресмятане на крайните резултати от изборите с отворен код на Javascript, работеща в браузърите IE10+, Firefox 20+, Chrome 23+, Opera 12.10+, Safari 5.1+.</p>
-             <P>Програмата обработва изборните резултати съгласно методиката на ЦИК точно като софтуера използван от фирмата "Информационно обслужване", избрана от ЦИК за компютърна обработка на резултатите от Избори 2013 г.
+            <P>Програмата обработва изборните резултати съгласно методиката на ЦИК точно като софтуера използван от фирмата "Информационно обслужване", избрана от ЦИК за компютърна обработка на резултатите от Избори 2013 г.
 
-<P>Офертата на фирма "Информационно обслужване" беше единствената и възлизаше на 1 687 896 лева с ДДС. 
+                <P>Офертата на фирма "Информационно обслужване" беше единствената и възлизаше на 1 687 896 лева с ДДС.
 
-<P>След като ЦИК категорически отказа да публикува изходния код за тази компютърна обработка с несъстоятелния и комичен аргумент, че някой може да фалшифицира изборите, Биволъ се обърна към специалисти математици и програмисти сред българите в чужбина, които буквално <B>за няколко дни</B> написаха тази не особено сложна програма.
+                    <P>След като ЦИК категорически отказа да публикува изходния код за тази компютърна обработка с несъстоятелния и комичен аргумент, че някой може да фалшифицира изборите, Биволъ се обърна към специалисти математици и програмисти сред българите
+                        в чужбина, които буквално
+                        <B>за няколко дни</B> написаха тази не особено сложна програма.
 
-<P>Освен това програмата демонстрира бъговете заложени в методиката приета от ЦИК, която е математически неиздържана и позволява да се манипулират изборните резултати на ниво персонификация на мандатите.
+                        <P>Освен това програмата демонстрира бъговете заложени в методиката приета от ЦИК, която е математически неиздържана и позволява да се манипулират изборните резултати на ниво персонификация на мандатите.
 
-<P>Най-просто казано, ако за един мандат на малка партия се конкурират един "сговорчив" и един "несговорчив" депутат, ЦИК може да реши да влезе "сговорчивия", а "несговорчивият", дори да е лидер на партия, да остане извън парламента.
+                            <P>Най-просто казано, ако за един мандат на малка партия се конкурират един "сговорчив" и един "несговорчив" депутат, ЦИК може да реши да влезе "сговорчивия", а "несговорчивият", дори да е лидер на партия, да остане извън парламента.
 
-<P>Последното е особено важно за конфигурацията на бъдещия парламент, където най-вероятно ще има труден баланс на силите и сговорчивите депутати на малките партии ще имат особено висока цена.
+                                <P>Последното е особено важно за конфигурацията на бъдещия парламент, където най-вероятно ще има труден баланс на силите и сговорчивите депутати на малките партии ще имат особено висока цена.
 
-<P>Причината ЦИК да засекрети кода на софтуера очевидно се крие в нежеланието тези бъгове да станат обществено достояние. Става ясно също, че цената за изработването на софтуера от "Информационно обслужване" е потресаващо висока за вложения труд.
+                                    <P>Причината ЦИК да засекрети кода на софтуера очевидно се крие в нежеланието тези бъгове да станат обществено достояние. Става ясно също, че цената за изработването на софтуера от "Информационно обслужване" е потресаващо
+                                        висока за вложения труд.
 
-<P>Прочетете <a href="https://bivol.bg/kalinci-code.html">още за методиката на ЦИК</a> и проблемите, които тя създава.
-<P>За да тествате бързо програмата с реални данни натиснете на бутона "Демо данни Избори 2009" и след това на "Калкулирай" под таблицата. Тъй като таблиците са доста широки се налага да се скролва надясно. Ако навигацията тук е неудобна можете <a href="https://www.bivol.bg/bg-elections-code.html" target="_blank">да отворите страницата</a> в нов прозорец. 
-<P>За да използвате програмата с данните за тези избори натиснете на бутона "Избори 2013". Той генерира таблица за максимум 9 партии, но програмата работи и с по-малък брой. Не е задължително да въвеждате резултати за партии непреминали 4% бариера. Броят мандати за разпределяне във всеки MИР са предварително въведени съгласно определените от ЦИК за Избори 2013 г. Можете да въведете ръчно в полетата на таблицата данните за всяка партия и всеки MИР или да заредите готови данни от файл във формат CSV*.</P>
-<P>Ако желаете и за целите на експеримента, броят на партиите и броят на МИР, както и броят мандати за всеки МИР, могат да бъдат свободно променяни с формуляра за генериране на данни по мярка.</P>
-<P>Автори: Проф. Любомир Гаврилов, Институт по математика, Тулуза (математически анализ), Д-р Стефан Манов (концепция и алгоритъм) , Делян Делчев (програмиране)</P>
+                                        <P>Прочетете <a href="https://bivol.bg/kalinci-code.html">още за методиката на ЦИК</a> и проблемите, които тя създава.
+                                            <P>За да тествате бързо програмата с реални данни натиснете на бутона "Демо данни Избори 2009" и след това на "Калкулирай" под таблицата. Тъй като таблиците са доста широки се налага да се скролва надясно. Ако
+                                                навигацията тук е неудобна можете <a href="https://www.bivol.bg/bg-elections-code.html" target="_blank">да отворите страницата</a> в нов прозорец.
+                                                <P>За да използвате програмата с данните за тези избори натиснете на бутона "Избори 2013". Той генерира таблица за максимум 9 партии, но програмата работи и с по-малък брой. Не е задължително да въвеждате резултати
+                                                    за партии непреминали 4% бариера. Броят мандати за разпределяне във всеки MИР са предварително въведени съгласно определените от ЦИК за Избори 2013 г. Можете да въведете ръчно в полетата на таблицата
+                                                    данните за всяка партия и всеки MИР или да заредите готови данни от файл във формат CSV*.</P>
+                                                <P>Ако желаете и за целите на експеримента, броят на партиите и броят на МИР, както и броят мандати за всеки МИР, могат да бъдат свободно променяни с формуляра за генериране на данни по мярка.</P>
+                                                <P>Автори: Проф. Любомир Гаврилов, Институт по математика, Тулуза (математически анализ), Д-р Стефан Манов (концепция и алгоритъм) , Делян Делчев (програмиране)</P>
 
-</div>
-            <form id="dimensions">
-                <fieldset>
-                    <legend>Начални данни</legend>
-                    <P> <input value="Избори 2013: Данни на ЦИК 100% от страната 100% от чужбина" onclick="fillDemo2013();" class="btn btn-warning" type="button"></P>
-                    <P><input value="Демо данни: Избори 2009 след касиране: 209 мандата/6 партии" onclick="fillDemo2009();" class="btn btn-warning" type="button"></P><P><input value="Демо данни, илюстриращи бъг в Методиката на ЦИК" onclick="fillDemoBug();" class="btn btn-warning" type="button"></P>
-                    <P>Или зареди файл с данни в CSV формат*: <input id="filename" type="file" onchange="loadFromFile();"></P>
-                    <P>Или генерирай данни по мярка:
+        </div>
+        <form id="dimensions">
+            <fieldset>
+                <legend>Начални данни</legend>
+                <P> <input value="Избори 2013: Данни на ЦИК 100% от страната 100% от чужбина" onclick="fillDemo2013();" class="btn btn-warning" type="button"></P>
+                <P><input value="Демо данни: Избори 2009 след касиране: 209 мандата/6 партии" onclick="fillDemo2009();" class="btn btn-warning" type="button"></P>
+                <P><input value="Демо данни, илюстриращи бъг в Методиката на ЦИК" onclick="fillDemoBug();" class="btn btn-warning" type="button"></P>
+                <P>Или зареди файл с данни в CSV формат*: <input id="filename" type="file" onchange="loadFromFile();"></P>
+                <P>Или генерирай данни по мярка:
                     <label>Брой МИР:</label><input id="dim_mir" value="32" type="number">
                     <label>Брой партии:</label><input id="dim_party" value="5" type="number"></P>
-                     
-                </fieldset>
-                <fieldset>
-                    <input id="dim_gen" value="Генерирай" onclick="genTable();" class="btn btn-primary" type="button">
-                   
-                </fieldset>
-            </form>
-            <div id="visual">
+
+            </fieldset>
+            <fieldset>
+                <input id="dim_gen" value="Генерирай" onclick="genTable();" class="btn btn-primary" type="button">
+
+            </fieldset>
+        </form>
+        <div id="visual">
         </div>
-        <div><P>* Програмата приема входни данни в CSV формат "МИР;Партия;Брой гласове". Примерно съдържание за 2 МИР-а и 2 партии:<BR>
-        1;Партия 1;18259<BR>
-		1;Партия 2;7823<BR>
-		2;Партия 1;8104<BR>
-		2;Партия 2;8409<BR><P>
-		<P>Примерни файлове: <a href="elections-code_files/izbori2009.csv">Резултатите от парламентарните избори 2009 г. след касиране за разпределяне на 209 мандата по пропорционалната система (десен клик на линка и изберете "Download").</a></P></div>
-		</div>
-		
+        <div>
+            <P>* Програмата приема входни данни в CSV формат "МИР;Партия;Брой гласове". Примерно съдържание за 2 МИР-а и 2 партии:
+                <BR> 1;Партия 1;18259
+                <BR> 1;Партия 2;7823
+                <BR> 2;Партия 1;8104
+                <BR> 2;Партия 2;8409
+                <BR>
+                <P>
+                    <P>Примерни файлове: <a href="elections-code_files/izbori2009.csv">Резултатите от парламентарните избори 2009 г. след касиране за разпределяне на 209 мандата по пропорционалната система (десен клик на линка и изберете "Download").</a></P>
+        </div>
+    </div>
+
 </body>
+
 </html>
