@@ -1,27 +1,28 @@
-<!--
-Experimental conversion of VBScript to JavaScript of an Election 2013 code
-The conversion follows almost identically the original code, which means it is ineffective and dirty in the JS perspective.
-As a future update, there will be cleanings of the CSS, 3-4 times code decrease, replacement of the ranks, removal of bunch of unecessary object structure.
-
-This code does not depend on any external JS library and requires HTML5 capable browser.
-This code does not require any server side code and is fast enough to produce almost instant results.
-
-If you have comments to the algorithm - please send them to CIK, as the algorithm used does allow a lot of miscalculations, that are "manually" fixed by CIK.
-
-Please use it with the latest versions of the browsers, but at least Opera 12.10, Firefox 20, Chrome 22, IE10
-
-Lubomir Gavrilov, Institut of Mathematics, Toulouse & Stefan Manov (original VBScript code)
-Delian Delchev (VBScript to Javascript conversion)
-This software is distributed free of charge
--->
-<!DOCTYPE html>
-<html>
-
+<!DOCTYPE HTML>
+<html dir="ltr">
 <head>
-    <title>Bulgarian Parliamentary Elections 2014</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="https://www.bivol.bg/elections-code_files/bootstrap.css" rel="stylesheet">
-    <style media="screen" type="text/css">
+    <title>Изборен калкулатор на Биволъ Bivol Poll Mandate Calculator</title>
+    <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="зборен калкулатор на Биволъ Bivol Poll Mandate Calculator"/>
+	<meta itemprop="description" content="Бази данни и търсачки в помощ на разследващите журналисти, гражданските активисти и обществената прозрачност. Ако цените нашата работа подкрепете сайта с абонамент, дарение или покупка на рекламен продукт."/>
+
+	<meta http-equiv="author" content="Bivol.bg" />
+	<meta http-equiv="contact" content="contact@bivol.bg" />
+	<meta name="keywords" content="България, Избори" />
+    <meta property="og:title" content="Изборен калкулатор на Биволъ Bivol Poll Mandate Calculator" />
+	<meta property="og:description" content="Бази данни и търсачки в помощ на разследващите журналисти, гражданските активисти и обществената прозрачност. Ако цените нашата работа подкрепете сайта с абонамент, дарение или покупка на рекламен продукт." />
+	<meta property="og:url" content="http://elections.bivol.bg" />
+	<meta property="og:image" content="img/bivol-logo-300x300.png" /> 
+<link rel="apple-touch-icon" href="img/bivol-logo-300x300.png" sizes="300x300" />
+<link rel="icon" href="https://bivol.bg/wp-content/uploads/2016/01/cropped-bivol-logo-512x512-32x32.png" sizes="32x32"/> 
+  <!-- Include the CSS -->
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bivol.it.css" rel="stylesheet">
+	
+   
+      <style media="screen" type="text/css">
         select,
         textarea,
         input[type="text"],
@@ -971,13 +972,67 @@ This software is distributed free of charge
     </script>
 </head>
 
-<body>
-    <div class="container">
-        <div class="row">
-            <a href="https://www.bivol.bg" target="_blank">
-                <div class="span12"><img src="https://www.bivol.bg/images/stories/logo-bivol.png" alt="Bivol.bg" /></a>
-            </div>
-        </div>
+<body data-spy="scroll" data-target=".navbar" data-offset="40">
+
+<!-- Навигация -->
+			<nav class="navbar navbar-default navbar-fixed-top">
+				  <div class="container-fluid">
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#Bivol-IT-Nav" aria-expanded="false">
+							  <span class="icon-bar"></span>
+							  <span class="icon-bar"></span>
+							  <span class="icon-bar"></span>                        
+						  </button>
+						  <a class="navbar-brand" href="https://bivol.bg" target="_blank">
+							<img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-small-nav">
+						  </a>
+						</div>
+						
+						  <div> <!-- Допълнителен див... -->	
+						  <div class="collapse navbar-collapse" id="Bivol-IT-Nav">
+							<ul class="nav navbar-nav">
+							  <li><a href="#search-form">Търси <span class="bivol-it-text-separator-dot"></span> Search</a></li>
+							  
+							  
+							  <li><a class="bivol-it-nav-link-search-tools" href="#search-tools">Търсачки <span class="bivol-it-text-separator-dot"></span> Search tools</a></li>							  
+							  <li><a class="bivol-it-nav-link-support-us" href="#support-us">Подкрепете ни <span class="bivol-it-text-separator-dot"></span> Support us</a></li>		  
+							</ul>							
+							<ul class="nav navbar-nav navbar-right">
+
+								<!-- Падащо меню - Език -->
+								<li class="dropdown">
+								  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Език <span class="bivol-it-text-separator-dot"></span> Language <span class="caret"></span></a>
+								  <ul class="dropdown-menu">
+									<li><a href="#">Български</a></li>	
+									<li role="separator" class="divider bivol-separator-nav-li-small-screen-none"></li> <!-- Междинен - не се вижда на малки екрани... -->
+									<li><a href="#" class="bivol-dropdown-menu-li-a-last">English</a></li> <!-- Последен линк - има хувър с border-bottom left/right... -->
+									<li role="separator" class="divider bivol-separator-nav-li"></li> <!-- Последен сепаратор - не се вижда на големи екрани... -->										
+								  </ul>
+								</li>
+								<!-- Падащо меню - Език -->						
+							
+								<li><a class="navbar-link" href="https://shop.bivol.bg" target="_blank">Биволъ Магазинъ <span class="bivol-it-text-separator-dot"></span> Bivol Shop</a></li>								        
+							</ul>
+						  </div> <!-- /.collapse navbar-collapse -->
+						  </div> <!-- Допълнителен див... -->		
+						  <div class="text-center"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator-nav grayscale-1 opacity-yes mb10"></div>
+				  </div> <!-- /.container-fluid -->
+			</nav>
+<!-- Навигация -->
+
+<div class="container">
+<div class="row mb30">
+<div class="col-sm-1 col-sm-offset-0 text-center">
+<a href="https://bivol.bg"><img src="http://search.bivol.bg/img/bivol_logo_big.png" class="bivol-logo box-shadow-yes"></a>
+</div>
+<div class="col-sm-8 col-sm-offset-3 text-center">
+<h1 class="font-normal"><span class="text-shadow-yes">Изборен калкулатор</span><BR><small>Пресмятане на мандатите по методологията на ЦИК</small><BR></h1>
+</div>
+</div> 
+</div>
+ <div class="container">
+    <div class="row">
+       
         <h1>Пресметни си сам резултатите от Парламентарни избори 2014</h1>
         <div>
             <p>Програма за пресмятане на крайните резултати от изборите с отворен код на Javascript, работеща в браузърите IE10+, Firefox 20+, Chrome 23+, Opera 12.10+, Safari 5.1+.</p>
@@ -1040,7 +1095,373 @@ This software is distributed free of charge
                     <P>Примерни файлове: <a href="elections-code_files/izbori2009.csv">Резултатите от парламентарните избори 2009 г. след касиране за разпределяне на 209 мандата по пропорционалната система (десен клик на линка и изберете "Download").</a></P>
         </div>
     </div>
-    <P>Предоставено от Bivol.bg. Можете да подпомогнете сайта с дарение <a href="https://www.bivol.bg/donate">тук</a>. Вижте и другия "изборен" проект на Биволъ: <a href="https://agenti.bivol.bg">ДеСеводител за изборите</a>.
-</body>
+    </div>
+<!-- Биволъ АйТи, Дакси, Партньори, Социални мрежи, Банери --> 
+<div class="container text-center">
+<div class="row text-center">
+<div class="text-center">
+<p class="mt20 mb30"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div id="bivol-it-lang-tabs">
+<ul class="nav nav-pills" role="tablist">
+<li role="presentation" class="active"><a class="bivol-it-tab-button-bulgarian" href="#bivol-it-lang-bg" aria-controls="home" role="tab" data-toggle="tab">Български</a></li>
+<li role="presentation"><a class="bivol-it-tab-button-english" href="#bivol-it-lang-en" aria-controls="profile" role="tab" data-toggle="tab">English</a></li>
+</ul>
+<div class="tab-content">
+<div role="tabpanel" class="tab-pane fade in active" id="bivol-it-lang-bg">
+<div class="text-center" id="search-tools">
+<p class="it-support-us-title">"Биволъ" АйТи<br><small>Онлайн проекти и търсачки - "Биволъ" разработва бази данни и търсачки в помощ на разследващите журналисти, гражданските активисти и обществената прозрачност:</small></p>
+</div>
+<div class="text-center">
+<p>
+<a class="btn btn-default bivol-it-button" href="http://contracts.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за сключени договори за обществени поръчки за периода 2007-2015 г.">Обществени поръчки (ПОДПРБ)</a>
+<a class="btn btn-default bivol-it-button" href="http://tr.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за фирмите в България за периода 01.2008-03.2016 г.">Търговски регистър (ПОДПРБ)</a>
+<a class="btn btn-default bivol-it-button" href="http://dfz.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за европейски субсидии по ПРСР 2007-2013 г.">ДФЗ ПРСР</a>
+<a class="btn btn-default bivol-it-button" href="http://isun.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за oперативни програми 2007-2013 г.">Оперативни програми ИСУН 2007-2013 г.</a>
+<a class="btn btn-default bivol-it-button" href="http://dfz.bivol.bg/municipalities" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за европейски субсидии по мерки 321 и 322 (общинските мерки) на ПРСР 2007-2013 г.">ДФЗ ПРСР Общински мерки 321 и 322</a>
+<a class="btn btn-default bivol-it-button" href="http://dfz.bivol.bg/guesthouses" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за къщи за гости субсидирани по ПРСР 2007-2013 г.">ДФЗ ПРСР Къщи за гости</a>
+<a class="btn btn-default bivol-it-button" href="http://pep.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за декларации подадени пред Сметната Палата за периода 2007-2015 г.">Декларациите на властта (СП)</a>
+<a class="btn btn-default bivol-it-button" href="http://agenti.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Търсачка за агенти на ДС разкрити от КОМДОС до края на 2015 г.">Десеводител (КОМДОС)</a>
+<a class="btn btn-default bivol-it-button" href="http://ktb.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за влогове и кредити на властимащите в КТБ с бързи линкове към декларациите им пред Сметната Палата.">Властта и КТБ</a>
+<a class="btn btn-default bivol-it-button" href="http://ktb.bivol.bg/secret" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за влогове и кредити в КТБ.">Сметки в КТБ</a>
+<a class="btn btn-default bivol-it-button" href="http://forest.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за разрешителните за сеч за периода 2011-2015 г.">Разрешителни за сеч (ПОДПРБ)</a>
+<a class="btn btn-default bivol-it-button" href="http://banks.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Търсачка в ипотечните кредити на КТБ и ПИБ до 2014 г.">Банки "Гнили Ябълки"</a>
+<a class="btn btn-default bivol-it-button" href="http://pib.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за свързаното кредитиране в ПИБ.">ПИБ <span class="bivol-it-text-separator-dot"></span> FIBANK</a>
+<a class="btn btn-default bivol-it-button" href="http://swaps.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка за заменките направени при Тройната коалиция.">Заменкигейт</a>
+<a class="btn btn-default bivol-it-button" href="http://sunlight.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Searchable database of solicitation and award notices from FBO.gov.">Sunlight</a>
+<a class="btn btn-default bivol-it-button" href="http://bspleaks.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Tърсачка в имейли на ръководството на БСП.">БСП Лийкс</a>
+<a class="btn btn-default bivol-it-button" href="http://bsptrolls.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Търсачка в коментарите от тролове на БСП.">БСП Тролове</a>
+<a class="btn btn-default bivol-it-button" href="http://bsptrolls.bivol.bg/yotovatrolls" target="_blank" data-toggle="tooltip" data-placement="top" title="Търсачка в коментарите от личните тролове на Илияна Йотова.">Троловете на Йотова</a>
+<br>
+<a class="btn btn-default bivol-it-button" href="http://search.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Едновременно търсене в реално време във всички бази данни на 'Биволъ'.">Глобално търсене във всички бази данни на "Биволъ"</a>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes "></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">За "Биволъ":<br><small>Независим, български сайт за разследваща журналистика. "Биволъ" е официален партньор на сайта "УикиЛийкс" (WikiLeaks) за България и Балканите и част от мрежата на OCCRP (Organized Crime and Corrpution Reporting Project - Международен проект за разследване на организираната престъпност и корупция). Екипът на "Биволъ" е създател и администратор на сайта "БолканЛийкс" (BalkanLeaks) - за сигурно и анонимно разкриване на поверителни или интригуващи документи и информация, свързани с политиката, престъпността или финансови машинации.</small></p>
+<p>
+<a class="btn btn-default bivol-it-button" href="https://wikileaks.org" target="_blank">УикиЛийкс</a>
+<a class="btn btn-default bivol-it-button" href="https://www.occrp.org" target="_blank">OCCRP</a>
+<a class="btn btn-default bivol-it-button" href="http://www.balkanleaks.eu" target="_blank">БолканЛийкс</a>
+<a class="btn btn-default bivol-it-button" href="http://www.bivol.bg" target="_blank">Биволъ</a>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes "></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">Подробна и изчерпателна информация за фирмите в България може да бъде закупена от <a href="http://daxy.com" target="_blank">Daxy.com</a></p>
+</div>
+<div class="text-center mt20 mb20">
+<p><a class="bivol-3rd-party-banner-link" href="http://daxy.com" target="_blank"><img class="img-responsive bivol-3rd-party-banner border-radius-4-yes box-shadow-yes opacity-08-on-hover grayscale-1-on-hover" src="http://search.bivol.bg/img/DAXY_baner_210x250_px.gif"></a></p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
 
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">Следете публикациите на "Биволъ" във Фейсбук, Туитър и Ютюб:</p>
+<p>
+<a class="btn btn-default btn-lg bivol-it-button bivol-it-facebook-big" href="https://facebook.com/bivolnews" target="_blank">Биволъ във Facebook</a>
+<a class="btn btn-default btn-lg bivol-it-button bivol-it-twitter-big" href="https://twitter.com/bivolbg" target="_blank">Биволъ в Twitter</a>
+<a class="btn btn-default btn-lg bivol-it-button bivol-it-youtube-big" href="https://www.youtube.com/user/BivolBivol" target="_blank">Биволъ в YouTube</a>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">Споделете "Биволъ" АйТи в социалните мрежи:</p>
+<p>
+<button class="btn btn-default bivol-it-button bivol-it-facebook bivol-it-share s_facebook" type="button">Facebook</button>
+<button class="btn btn-default bivol-it-button bivol-it-twitter bivol-it-share s_twitter" type="button">Twitter</button>
+<button class="btn btn-default bivol-it-button bivol-it-linkedin bivol-it-share s_linkedin" type='button'>LinkedIn</button>
+<button class="btn btn-default bivol-it-button bivol-it-google-plus bivol-it-share s_plus" type="button">Google +</button>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div class="text-center" id="support-us">
+<p class="it-support-us-title">Ако цените нашата работа подкрепете сайта "Биволъ" с дарение (банков превод, в брой - през Cashterminal, ePay.bg - EasyPay, PayPal, биткойни), абонамент или покупка на наш рекламен продукт:</p>
+</div>
+<div class="text-center">
+<div class="bivol-banners-container">
+<div class="bivol-banners-row">
+<div class="bivol-banner bivol-banner-grayscale-1 bd1">
+<a class="bivol-banner-link" href="https://shop.bivol.bg/bivol-tax" target="_blank">
+<p class="bivol-banner-border bivol-banner-box"><img class="bivol-tax-banner" src="http://search.bivol.bg/img/donate_tax_square.png" alt="Bivol Tax"/></p>
+<p class="bivol-banner-text"><strong><span>Данъкъ "Биволъ"</span></strong><br><span>Абонамент</span></p>
+</a>
+</div>
+<div class="bivol-banner bivol-banner-grayscale-1 bd2">
+<a class="bivol-banner-link" href="https://shop.bivol.bg" target="_blank">
+<p class="bivol-banner-border"><img class="bivol-products-banner" src="http://search.bivol.bg/img/shop_hat_square.png" alt="Bivol Products"/></p>
+<p class="bivol-banner-text"><span>Рекламни</span><br><span>продукти</span></p>
+</a>
+</div>
+<div class="bivol-banner bivol-banner-grayscale-1 bd3">
+<a class="bivol-banner-link" href="bitcoin:12JFL9S4BsMGFSr5jmDrcqRnWbfQQSgVaM">
+<p class="bivol-banner-border"><img class="bivol-bitcoin-banner" src="http://search.bivol.bg/img/donate_bitcoin_square.png" alt="Bivol Bitcoin"/></p>
+<p class="bivol-banner-text"><span>Биткойн</span><br><span>Bitcoin</span></p>
+</a>
+</div>
+<div class="bivol-banner bivol-banner-grayscale-1 bd4">
+<a class="bivol-banner-link" href="https://shop.bivol.bg" target="_blank">
+<p class="bivol-banner-border"><img class="bivol-donations-banner" src="http://search.bivol.bg/img/donate_single_square.png" alt="Bivol Donations"/></p>
+<p class="bivol-banner-text"><span>Дарения</span><br><span>Еднократни</span></p>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>  
+<div role="tabpanel" class="tab-pane fade" id="bivol-it-lang-en">
+<div class="text-center" id="search-tools-eng">
+<p class="it-support-us-title">Bivol IT<br><small>Online projects and search engines - Bivol develops databases and search engines to help investigative journalists, civil activists and public transparency:</small></p>
+</div>
+<div class="text-center">
+<p>
+<a class="btn btn-default bivol-it-button" href="http://contracts.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="2007-2015 Bulgarian public procurement search engine - the information is provided by the Open Data Portal of the Bulgarian Government.">Public procurements</a>
+<a class="btn btn-default bivol-it-button" href="http://tr.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="01.2008-03.2016 Bulgarian companies search engine - the information is provided by the Open Data Portal of the Bulgarian Government.">Commercial register</a>
+<a class="btn btn-default bivol-it-button" href="http://dfz.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="2007-2013 Bulgarian State Fund Agriculture - Rural Development Programme - European Union subsidies search engine.">EU Rural Development Programme</a>
+<a class="btn btn-default bivol-it-button" href="http://isun.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="2007-2013 Bulgarian operational programmes - European Union Funds Management Information System search engine.">2007-2013 Operational programmes EUMIS</a>
+<a class="btn btn-default bivol-it-button" href="http://dfz.bivol.bg/municipalities" target="_blank" data-toggle="tooltip" data-placement="top" title="2007-2013 Bulgarian State Fund Agriculture - Rural Development Programme - Municipal measures 321 & 322 - European Union subsidies search engine.">Municipal projects with EU money</a>
+<a class="btn btn-default bivol-it-button" href="http://dfz.bivol.bg/guesthouses" target="_blank" data-toggle="tooltip" data-placement="top" title="2007-2013 Bulgarian State Fund Agriculture - Rural Development Programme - Guest houses - European Union subsidies search engine.">Guest houses with EU money</a>
+<a class="btn btn-default bivol-it-button" href="http://pep.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="2007-2015 Declarations to the Bulgarian National Audit Office by persons holding senior government and other positions in Bulgaria search engine - the information is provided by the Bulgarian National Audit Office.">PEP Declarations</a>
+<a class="btn btn-default bivol-it-button" href="http://agenti.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="The Bulgarian Committee for State Security Agents (State Security Agents) exposed by COMDOS - the Bulgarian 'Files Committee' until the end of 2015 search engine - the information is provided by the Bulgarian 'Files Committee'.">Communist Agents</a>
+<a class="btn btn-default bivol-it-button" href="http://ktb.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Deposits and credits in Bulgarian Corporate Commercial Bank of persons holding senior government and other positions in Bulgaria with links to their declarations to the Bulgarian National Audit Office search engine - the information is provided by the Bulgarian Deposit Insurance Fund.">CorpBank PEP Account Holders</a>
+<a class="btn btn-default bivol-it-button" href="http://ktb.bivol.bg/secret" target="_blank" data-toggle="tooltip" data-placement="top" title="Deposits and credits in Bulgarian Corporate Commercial Bank search engine.">CorpBank Account Holders (password protected)</a>
+<a class="btn btn-default bivol-it-button" href="http://forest.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="2011-2015 logging permits search engine - the information is provided by the Open Data Portal of the Bulgarian Government.">Logging permits</a>
+<a class="btn btn-default bivol-it-button" href="http://banks.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Mortgage loans in Bulgarian Corporate Commercial Bank & Bulgarian First Investment Bank until 2014 search engine.">Bad Apples Banks</a>
+<a class="btn btn-default bivol-it-button" href="http://pib.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Connected credits in Bulgarian First Investment Bank search engine.">FIBANK</a>
+<a class="btn btn-default bivol-it-button" href="http://swaps.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Swaps made durring the 'Triple coalition' search engine.">Swapsgate</a>
+<a class="btn btn-default bivol-it-button" href="http://sunlight.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Searchable database of solicitation and award notices from FBO.gov.">Sunlight</a>
+<a class="btn btn-default bivol-it-button" href="http://bspleaks.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Еmails of the leadership of the Bulgarian communist party search engine.">BSP Leaks</a>
+<a class="btn btn-default bivol-it-button" href="http://bsptrolls.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Comments by hybrid war trolls of the Bulgarian communist party search engine.">BSP Trolls</a>
+<a class="btn btn-default bivol-it-button" href="http://bsptrolls.bivol.bg/yotovatrolls" target="_blank" data-toggle="tooltip" data-placement="top" title="Comments by the personal hybrid war trolls of the communist Iliana Iotova search engine.">Yotova Trolls</a>
+<br>
+<a class="btn btn-default bivol-it-button" href="http://search.bivol.bg" target="_blank" data-toggle="tooltip" data-placement="top" title="Simultaneous real-time search in all Bivol's databases.">Global search in all Bivol's databases</a>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes "></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">About Bivol:<br><small>Independent Bulgarian website about investigative journalism. Bivol is an official partner of WikiLeaks for Bulgaria and the Balkans and a part of the network of OCCRP (Organized Crime and Corrpution Reporting Project). The Bivol's team is the creator and administrator of the website BalkanLeaks - about secure and anonymous disclosure of sensitive information and confidential documents related to politics, crimes or financial machinations.</small></p>
+<p>
+<a class="btn btn-default bivol-it-button" href="https://wikileaks.org" target="_blank">WikiLeaks</a>
+<a class="btn btn-default bivol-it-button" href="https://www.occrp.org" target="_blank">OCCRP</a>
+<a class="btn btn-default bivol-it-button" href="http://www.balkanleaks.eu" target="_blank">BalkanLeaks</a>
+<a class="btn btn-default bivol-it-button" href="http://www.bivol.bg" target="_blank">Bivol</a>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes "></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">Detailed and comprehensive information about the commercial companies in Bulgaria can be bought from <a href="http://daxy.com" target="_blank">Daxy.com</a></p>
+</div>
+<div class="text-center mt20 mb20">
+<p><a class="bivol-3rd-party-banner-link" href="http://daxy.com" target="_blank"><img class="img-responsive bivol-3rd-party-banner border-radius-4-yes box-shadow-yes opacity-08-on-hover grayscale-1-on-hover" src="http://search.bivol.bg/img/DAXY_baner_210x250_px.gif"></a></p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">Stay updated with Bivol's publications on Facebook, Twitter and YouTube:</p>
+<p>
+<a class="btn btn-default btn-lg bivol-it-button bivol-it-facebook-big" href="https://facebook.com/bivolnews" target="_blank">Bivol on Facebook</a>
+<a class="btn btn-default btn-lg bivol-it-button bivol-it-twitter-big" href="https://twitter.com/bivolbg" target="_blank">Bivol on Twitter</a>
+<a class="btn btn-default btn-lg bivol-it-button bivol-it-youtube-big" href="https://www.youtube.com/user/BivolBivol" target="_blank">Bivol on YouTube</a>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div class="text-center">
+<p class="it-support-us-title">Share Bivol IT on social networks:</p>
+<p>
+<button class="btn btn-default bivol-it-button bivol-it-facebook bivol-it-share s_facebook" type="button">Facebook</button>
+<button class="btn btn-default bivol-it-button bivol-it-twitter bivol-it-share s_twitter" type="button">Twitter</button>
+<button class="btn btn-default bivol-it-button bivol-it-linkedin bivol-it-share s_linkedin" type='button'>LinkedIn</button>
+<button class="btn btn-default bivol-it-button bivol-it-google-plus bivol-it-share s_plus" type="button">Google +</button>
+</p>
+</div>
+<div class="text-center">
+<p class="mt30 mb20"><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-separator grayscale-1 opacity-yes"></p>
+</div>
+<div class="text-center" id="support-us-eng">
+<p class="it-support-us-title">If you appreciate our work - you may support Bivol by a donation (a bank transfer, cash - by Cashterminal, ePay.bg - EasyPay, PayPal, bitcoins), a subscription or to buy some of our branded products:</p>
+</div>
+<div class="text-center">
+<div class="bivol-banners-container">
+<div class="bivol-banners-row">
+<div class="bivol-banner bivol-banner-grayscale-1 bd1">
+<a class="bivol-banner-link" href="https://shop.bivol.bg/bivol-tax" target="_blank">
+<p class="bivol-banner-border bivol-banner-box"><img class="bivol-tax-banner" src="http://search.bivol.bg/img/donate_tax_square.png" alt="Bivol Tax"/></p>
+<p class="bivol-banner-text"><strong><span>Bivol Tax</span></strong><br><span>Subscription</span></p>
+</a>
+</div>
+<div class="bivol-banner bivol-banner-grayscale-1 bd2">
+<a class="bivol-banner-link" href="https://shop.bivol.bg" target="_blank">
+<p class="bivol-banner-border"><img class="bivol-products-banner" src="http://search.bivol.bg/img/shop_hat_square.png" alt="Bivol Products"/></p>
+<p class="bivol-banner-text"><span>Branded</span><br><span>products</span></p>
+</a>
+</div>
+<div class="bivol-banner bivol-banner-grayscale-1 bd3">
+<a class="bivol-banner-link" href="bitcoin:12JFL9S4BsMGFSr5jmDrcqRnWbfQQSgVaM">
+<p class="bivol-banner-border"><img class="bivol-bitcoin-banner" src="http://search.bivol.bg/img/donate_bitcoin_square.png" alt="Bivol Bitcoin"/></p>
+<p class="bivol-banner-text"><span>Bitcoin</span><br><span>Donations</span></p>
+</a>
+</div>
+<div class="bivol-banner bivol-banner-grayscale-1 bd4">
+<a class="bivol-banner-link" href="https://shop.bivol.bg" target="_blank">
+<p class="bivol-banner-border"><img class="bivol-donations-banner" src="http://search.bivol.bg/img/donate_single_square.png" alt="Bivol Donations"/></p>
+<p class="bivol-banner-text"><span>Donations</span><br><span>One-time</span></p>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>  
+</div>  
+</div>
+<div class="text-center mt20">
+<p><img src="http://search.bivol.bg/img/bivol_logo_small.png" class="bivol-logo-small grayscale-1"></p>
+<p class="bivol-footer-text">Bivol IT | &copy; Bivol.bg</p>
+</div>  
+</div>
+</div>
+<!-- Биволъ АйТи, Дакси, Партньори, Социални мрежи, Банери -->  
+ 
+ 
+<button class="scrollup"></button>
+ 
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-80602004-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+ 
+<script type="text/javascript">
+$(document).ready(function () {
+		
+		// Промяна на opacity на логото и заглавието при скрол.
+		var headerLogo = $('.bivol-logo');
+		var range = 140;
+
+		//var headerTitle = $('.bivol-it-heading-with-opacity-change');
+		//var range = 200;	
+
+		$(window).scroll(function () {
+			if ($(this).scrollTop() > 200) {
+				$('.navbar, .scrollup').fadeIn();				
+			} else {
+				$('.navbar, .scrollup').fadeOut();				
+			}
+			
+			// Промяна на opacity на логото и заглавието при скрол - на екрани по-малки от 768px.
+			if($(window).width() <= 767){
+				var scrollTop = $(this).scrollTop();
+				var offsetLogo = headerLogo.offset().top;
+				//var offsetTitle = headerTitle.offset().top;
+				
+				var heightLogo = headerLogo.outerHeight();
+				//var heightTitle = headerTitle.outerHeight();
+				
+				offsetLogo = offsetLogo + heightLogo / 2;
+				var calc = 1 - (scrollTop - offsetLogo + range) / range;
+				
+				//offsetTitle = offsetTitle + heightTitle / 2;
+				//var calc = 1 - (scrollTop - offsetTitle + range) / range;
+	  
+				headerLogo.css({ 'opacity': calc });
+				//headerTitle.css({ 'opacity': calc });
+	  
+				if ( calc > '1' ) {
+					headerLogo.css({ 'opacity': 1 });
+					//headerTitle.css({ 'opacity': 1 });
+				} else if ( calc < '0' ) {
+					headerLogo.css({ 'opacity': 0 });
+					//headerTitle.css({ 'opacity': 0 });
+				}
+			}
+			
+		});
+
+		$('.scrollup').click(function () {
+			$('.bivol-logo-separator-nav').hide();
+			$('.navbar-collapse').collapse('hide');
+			$('html, body').animate({
+				scrollTop: 0
+			}, 600);
+			return false;
+		});
+		
+		// Показване и скриване на малкото лого - меню-сепаратор на малки екрани при отваряне/затваряне на менюто.
+		$('button.navbar-toggle').click(function () {		
+			if ($('.bivol-logo-separator-nav').is(':hidden'))  {			
+				$('.bivol-logo-separator-nav').fadeIn();			
+			}
+			else {					
+				$('.bivol-logo-separator-nav').hide();	
+			}			
+		});
+		
+		// Смяна на href-вете на навигацията ('Търсачки' и 'Подкрепете ни') при отваряне на езикови табове.
+		$(function(){
+
+			$(".bivol-it-tab-button-bulgarian").click(function(){
+				$("a.bivol-it-nav-link-search-tools").attr('href', '#search-tools');
+				$("a.bivol-it-nav-link-support-us").attr('href', '#support-us');
+			});
+
+			$(".bivol-it-tab-button-english").click(function(){
+				$("a.bivol-it-nav-link-search-tools").attr('href', '#search-tools-eng');
+				$("a.bivol-it-nav-link-support-us").attr('href', '#support-us-eng');			
+			});
+			
+			$(".bivol-it-tab-button-french").click(function(){
+				$("a.bivol-it-nav-link-search-tools").attr('href', '#search-tools-fr');
+				$("a.bivol-it-nav-link-support-us").attr('href', '#support-us-fr');
+			});
+			
+			$(".bivol-it-tab-button-german").click(function(){
+				$("a.bivol-it-nav-link-search-tools").attr('href', '#search-tools-de');
+				$("a.bivol-it-nav-link-support-us").attr('href', '#support-us-de');
+			});	
+			
+		});
+		
+		// Tooltips.
+		$(function () {
+		    $('[data-toggle="tooltip"]').tooltip()
+		})
+		
+		// Споделяне в социалните мрежи.
+		$('.bivol-it-share').ShareLink({
+            title: 'Търсачките на Биволъ | Bivol Search Engines',
+            text: 'Бивол АйТи - онлайн бази данни и търсачки. | Bivol IT - online databases and search engines.',
+            image: 'http://search.bivol.bg/img/bivol-logo-300x300.png',
+            url: 'http://search.bivol.bg'
+        });
+
+});
+</script>
+</body>
 </html>
