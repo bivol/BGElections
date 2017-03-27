@@ -657,7 +657,7 @@ This software is distributed free of charge
             var dim_mir = document.getElementById("dim_mir").value;
             var dim_party = document.getElementById("dim_party").value;
             for (i = 0; i < tr.length; i++) {
-                var row = tr.item(i);
+                var row = item(tr,i);
                 var pp = [];
                 var po = {
                     partyName: "",
@@ -706,9 +706,9 @@ This software is distributed free of charge
             var s = document.getElementsByClassName(name);
             var i, sum = 0;
             for (i = s.length - 1; i >= 0; i--) {
-                if (s.item(i).tagName === "INPUT") sum += parseInt(s.item(i).value);
+                if (item(s,i).tagName === "INPUT") sum += parseInt(item(s,i).value);
                 else
-                    sum += parseInt(s.item(i).innerHTML);
+                    sum += parseInt(item(s,i).innerHTML);
             }
             o.innerHTML = sum;
         };
